@@ -15,7 +15,7 @@ import (
 
 type tokenValidatorExtension struct {
 	logger     *zap.Logger
-	tokenStore *token.InMemTokenStore
+	tokenStore *token.InMemStore
 	client     *kgo.Client
 	seedBroker string
 	topic      string
@@ -25,13 +25,13 @@ type tokenValidatorExtension struct {
 func newTokenValidatorExtension(cfg *Config, log *zap.Logger) tokenValidatorExtension {
 	return tokenValidatorExtension{
 		logger:     log,
-		tokenStore: token.NewInMemTokenStore(),
+		tokenStore: token.NewInMemStore(),
 		seedBroker: cfg.Broker,
 		topic:      cfg.Topic,
 	}
 }
 
-func (e *tokenValidatorExtension) Start(ctx context.Context, _ component.Host) error {
+func (e *tokenValidatorExtension) Start(_ context.Context, _ component.Host) error {
 	cl, err := kgo.NewClient(
 		kgo.SeedBrokers(e.seedBroker),
 		kgo.ConsumeTopics(e.topic),
@@ -49,7 +49,7 @@ func (e *tokenValidatorExtension) Start(ctx context.Context, _ component.Host) e
 	return nil
 }
 
-func (e *tokenValidatorExtension) Shutdown(ctx context.Context) error {
+func (e *tokenValidatorExtension) Shutdown(_ context.Context) error {
 	if e.cancelPoll != nil {
 		e.cancelPoll()
 	}
@@ -57,6 +57,7 @@ func (e *tokenValidatorExtension) Shutdown(ctx context.Context) error {
 	if e.client != nil {
 		e.client.Close()
 	}
+
 	return nil
 }
 
@@ -66,7 +67,7 @@ func (e *tokenValidatorExtension) Validator() token.Validator {
 
 // runKafkaPollLoop continuously fetches records from the given client, attempts to deserialize them
 // as [tokenpb.TokenEvent]s, and updates the provided [InMemTokenStore] accordingly.
-func runKafkaPollLoop(ctx context.Context, cl *kgo.Client, ts *token.InMemTokenStore, log *zap.Logger) {
+func runKafkaPollLoop(ctx context.Context, cl *kgo.Client, ts *token.InMemStore, log *zap.Logger) {
 	for {
 		fs := cl.PollFetches(ctx)
 		if ctx.Err() != nil {

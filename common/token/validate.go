@@ -22,26 +22,26 @@ func (s NoOpValidator) Validate(t LandscapeToken) error {
 
 var _ Validator = NoOpValidator{}
 
-// An InMemTokenStore uses a map to keep track of landscape tokens in-memory.
+// An InMemStore uses a map to keep track of landscape tokens in-memory.
 // Tokens can be manually added and removed from the store.
 // The store is safe to read from multiple goroutines, however there must be
 // only a single writer to prevent lost writes.
 //
-// Should not be initialized directly; use [NewInMemTokenStore] instead.
-type InMemTokenStore struct {
+// Should not be initialized directly; use [NewInMemStore] instead.
+type InMemStore struct {
 	ptr atomic.Pointer[map[string]string]
 }
 
-// NewInMemTokenStore initializes a new, empty [InMemTokenStore] along with its internal map.
-func NewInMemTokenStore() *InMemTokenStore {
-	ts := InMemTokenStore{}
+// NewInMemStore initializes a new, empty [InMemStore] along with its internal map.
+func NewInMemStore() *InMemStore {
+	ts := InMemStore{}
 	m := make(map[string]string)
 	ts.ptr.Store(&m)
 	return &ts
 }
 
 // Validate checks whether the provided token currently exists in the store and returns an error if it does not.
-func (s *InMemTokenStore) Validate(t LandscapeToken) error {
+func (s *InMemStore) Validate(t LandscapeToken) error {
 	m := s.ptr.Load()
 	sec, ok := (*m)[t.ID]
 	if ok && sec == t.Secret {
@@ -51,7 +51,7 @@ func (s *InMemTokenStore) Validate(t LandscapeToken) error {
 }
 
 // Put writes the provided landscape token to the store. Existing tokens are updated.
-func (s *InMemTokenStore) Put(t LandscapeToken) {
+func (s *InMemStore) Put(t LandscapeToken) {
 	old := s.ptr.Load()
 	newMap := make(map[string]string, len(*old)+1)
 	for k, v := range *old {
@@ -62,7 +62,7 @@ func (s *InMemTokenStore) Put(t LandscapeToken) {
 }
 
 // Delete removes the provided landscape token from the store. No-op if specified token ID is not in the store.
-func (s *InMemTokenStore) Delete(tokenID string) {
+func (s *InMemStore) Delete(tokenID string) {
 	old := s.ptr.Load()
 	newMap := make(map[string]string, len(*old))
 	for k, v := range *old {
@@ -72,4 +72,4 @@ func (s *InMemTokenStore) Delete(tokenID string) {
 	s.ptr.Store(&newMap)
 }
 
-var _ Validator = (*InMemTokenStore)(nil)
+var _ Validator = (*InMemStore)(nil)
