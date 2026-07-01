@@ -1,0 +1,14 @@
+display_name: ExplorViz Exporter
+type: explorviz
+
+description: |
+  The ExplorViz exporter sends processed telemetry data to the ExplorViz backend. It relies on attributes
+  written by the ExplorViz Parsing Processor and is therefore supposed to be used in conjunction with it.
+  The parsed trace data from the parsing processor is exported via a a custom Protobuf format to a Kafka topic.
+
+status:
+  class: exporter
+  stability:
+    development: [traces]
+
+sem_conv_version: 1.42.0

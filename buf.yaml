@@ -1,0 +1,4 @@
+# Buf is used for CI/CD linting of .proto files
+version: v2
+modules:
+  - path: .

@@ -1,0 +1,38 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: :55678
+
+processors:
+  explorviz_parsing:
+    validate_tokens: false
+  attributes/add_default_landscape_token:
+    actions:
+      - key: explorviz.token.id
+        value: "mytokenvalue"
+        action: insert
+      - key: explorviz.token.secret
+        value: "mytokensecret"
+        action: insert
+
+exporters:
+  explorviz:
+    broker: localhost:9091
+    topic: telemetry.spans.parsed
+
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [explorviz_parsing]
+      exporters: [explorviz, debug]
+    metrics:
+      receivers: [otlp]
+      exporters: [debug]
+    logs:
+      receivers: [otlp]
+      exporters: [debug]

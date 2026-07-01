@@ -1,0 +1,29 @@
+dist:
+  module: github.com/ExplorViz/otel-collector/cmd/explorviz-otelcol
+  name: explorviz-otelcol
+  description: Custom OTel Collector for use with ExplorViz
+  output_path: ./cmd/explorviz-otelcol
+
+exporters:
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.155.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/clickhouseexporter v0.155.0
+  - gomod: github.com/ExplorViz/otel-collector v0.0.0
+    import: github.com/ExplorViz/otel-collector/exporter/explorvizexporter
+    path: .
+
+processors:
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.155.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/attributesprocessor v0.155.0
+  - gomod: github.com/ExplorViz/otel-collector v0.0.0
+    import: github.com/ExplorViz/otel-collector/processor/explorvizparsingprocessor
+    path: .
+
+receivers:
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.155.0
+
+providers:
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.48.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.48.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.48.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.48.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.48.0

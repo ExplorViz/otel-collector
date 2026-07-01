@@ -1,0 +1,18 @@
+display_name: ExplorViz Parsing Processor
+type: explorviz_parsing
+
+description: |
+  The ExplorViz parsing processor extracts information telemetry signals required by the ExplorViz software visualization tool.
+  The processor attempts to derive the entity described by telemetry and stores the extracted information in the telemetry attributes.
+  Note that the term "entity" here describes a visualization entity for ExplorViz and does not necessarily match the OTel definition
+  of entities. Telemetry for which no entity can be derived will be dropped, i.e. if no service name can be inferred.
+
+  This processor is intended to be used with the custom ExplorViz exporter. Additionally, to enable validation of landscape tokens,
+  the explorviztokenvalidator extension is required.
+
+status:
+  class: processor
+  stability:
+    development: [traces]
+
+sem_conv_version: 1.42.0
