@@ -26,12 +26,11 @@ type explorVizExporter struct {
 }
 
 func newExplorVizExporter(cfg *Config, log *zap.Logger) explorVizExporter {
-	e := explorVizExporter{
+	return explorVizExporter{
 		logger:     log,
 		seedBroker: cfg.Broker,
 		topic:      cfg.Topic,
 	}
-	return e
 }
 
 func (e *explorVizExporter) start(ctx context.Context, host component.Host) error {

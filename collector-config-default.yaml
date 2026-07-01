@@ -24,12 +24,20 @@ exporters:
   debug:
     verbosity: detailed
 
+extensions:
+  explorviz_token_validator:
+    broker: localhost:9091
+    topic: tokens.events
+
 service:
+  extensions: [explorviz_token_validator]
   pipelines:
     traces:
       receivers: [otlp]
       processors: [explorviz_parsing]
-      exporters: [explorviz, debug]
+      exporters:
+        - explorviz
+        # - debug # Uncomment for direct output to stdout
     metrics:
       receivers: [otlp]
       exporters: [debug]

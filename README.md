@@ -51,7 +51,7 @@ $ make run   # Generate, build and run in a single step
 
 $ make lint  # Run golangci-lint (must be installed locally)
 
-$ make test  # Generate and run tests
+$ make test  # Run tests
 
 $ make       # Generate, build, lint and test
 ```

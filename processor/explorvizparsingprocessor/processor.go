@@ -3,7 +3,6 @@ package explorvizparsingprocessor
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -14,6 +13,10 @@ import (
 	"github.com/ExplorViz/otel-collector/common/token"
 	"github.com/ExplorViz/otel-collector/common/trace"
 )
+
+type tokenValidatorExtension interface {
+	Validator() token.Validator
+}
 
 type parsingProcessor struct {
 	logger         *zap.Logger
@@ -32,11 +35,14 @@ func newParsingProcessor(cfg *Config, log *zap.Logger) parsingProcessor {
 
 func (p *parsingProcessor) Start(ctx context.Context, host component.Host) error {
 	if p.tokenValidator == nil {
-		extID := component.MustNewIDWithName("explorviztokenlistener", "ExplorViz Token Event Listener")
-		if _, ok := host.GetExtensions()[extID]; ok {
-			// TODO handle
-			fmt.Printf("todo")
-			p.tokenValidator = token.NoOpValidator{}
+		extID := component.MustNewID("explorviz_token_validator")
+		if ext, ok := host.GetExtensions()[extID]; ok {
+			if tokenExt, ok := ext.(tokenValidatorExtension); ok {
+				p.tokenValidator = tokenExt.Validator()
+			} else {
+				p.logger.Warn("extensions found but does not conform to interface, landscape token validation is disabled")
+				p.tokenValidator = token.NoOpValidator{}
+			}
 		} else {
 			p.logger.Warn("extensions not supported by host, landscape token validation is disabled")
 			p.tokenValidator = token.NoOpValidator{}

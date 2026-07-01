@@ -1,0 +1,12 @@
+display_name: ExplorViz Token Validator
+type: explorviz_token_validator
+
+description: |
+  The ExplorViz token validator extension receives landscape token events from a Kafka topic and maintains an in-memory store of
+  existing landscape tokens together with their secret values. This can be used to verify the validity of received landscape tokens
+  within telemetry data to prevent unauthorized users from writing into a landscape they do not own.
+
+status:
+  class: extension
+  stability:
+    development: [extension]

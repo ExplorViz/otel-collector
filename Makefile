@@ -11,7 +11,7 @@ build: generate
 
 .PHONY: run
 run: build
-	cd cmd/explorviz-otelcol && go run . --config ../../collector-config-default.yaml
+	cd cmd/explorviz-otelcol && go run . --config ../../collector-config-default.yaml || true
 
 .PHONY: lint
 lint: generate
