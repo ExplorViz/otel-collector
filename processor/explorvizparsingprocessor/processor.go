@@ -72,6 +72,7 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 					continue
 				}
 
+				sr.Span.Attributes().PutStr(string(attrib.ExplorVizAttributes.EntityId.Key), se.Id())
 				m := sr.Span.Attributes().PutEmptyMap(string(attrib.ExplorVizAttributes.EntityDescriptor.Key))
 				se.ToMap().CopyTo(m)
 			}

@@ -31,7 +31,7 @@ type SpanEntity interface {
 	Id() string
 
 	// ToMap encodes the entity as a [pcommon.Map] such that it can be stored within telemetry attributes.
-	// Calling FromMap on the result should yield an entity with identical attribute values.
+	// Calling [FromMap] on the result should yield an entity with identical attribute values.
 	ToMap() pcommon.Map
 }
 
