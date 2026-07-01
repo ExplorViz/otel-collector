@@ -1,4 +1,4 @@
-# ExplorViz Token Listener Extension
+# ExplorViz Token Validator Extension
 
 This extension listens for landscape token events from the [user-service](https://github.com/ExplorViz/user-service). The token events are consumed from a Kafka topic. The extension keeps track of all currently valid landscape tokens and their secret values in-memory. Other Collector components can access the token store to validate incoming telemetry.
 
