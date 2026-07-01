@@ -11,7 +11,7 @@ For development instructions, continue reading below. If you just want to run Ex
 - [Go](https://go.dev/), version 1.25.0 or higher
 - [Protobuf Compiler](https://protobuf.dev/installation/), version 3.0 or higher
 - A code editor, such as [Visual Studio Code](https://code.visualstudio.com/)
-- Make sure to run the [ExplorViz software stack](../deployment) before starting the service, as it provides the required database(s) and the Kafka broker
+- Make sure to run the [ExplorViz software stack](https://git.se.informatik.uni-kiel.de/ExplorViz/code/deployment/-/tree/main/docker) before starting the service, as it provides the required database(s) and the Kafka broker
 
 ### Running the OpenTelemetry Collector Builder
 
