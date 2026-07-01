@@ -15,7 +15,7 @@ run: build
 
 .PHONY: lint
 lint: generate
-	golangci-lint run
+	golangci-lint run ./...
 
 .PHONY: test
 test: generate
