@@ -17,8 +17,9 @@ type ExplorVizAttribute struct {
 var ExplorVizAttributes = struct {
 	LandscapeTokenID     ExplorVizAttribute
 	LandscapeTokenSecret ExplorVizAttribute
-	EntityId             ExplorVizAttribute
+	EntityID             ExplorVizAttribute
 	EntityDescriptor     ExplorVizAttribute
+	VizObjID             ExplorVizAttribute
 }{
 	LandscapeTokenID: ExplorVizAttribute{
 		Key:          "explorviz.token.id",
@@ -28,13 +29,17 @@ var ExplorVizAttributes = struct {
 		Key:          "explorviz.token.secret",
 		DefaultValue: pcommon.NewValueStr("mytokenvalue"),
 	},
-	EntityId: ExplorVizAttribute{
+	EntityID: ExplorVizAttribute{
 		Key:          "explorviz.entity.id",
-		DefaultValue: pcommon.NewValueStr("unknown"),
+		DefaultValue: pcommon.NewValueStr("unknown-entity"),
 	},
 	EntityDescriptor: ExplorVizAttribute{
 		Key:          "explorviz.entity.descriptor",
 		DefaultValue: pcommon.NewValueMap(),
+	},
+	VizObjID: ExplorVizAttribute{
+		Key:          "explorviz.vizobject.id",
+		DefaultValue: pcommon.NewValueStr("unknown-vizobject"),
 	},
 }
 

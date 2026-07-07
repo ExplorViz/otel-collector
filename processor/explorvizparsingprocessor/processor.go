@@ -2,11 +2,15 @@ package explorvizparsingprocessor
 
 import (
 	"context"
+	"encoding/binary"
+	"encoding/hex"
 	"errors"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/zap"
+
+	"github.com/cespare/xxhash/v2"
 
 	"github.com/ExplorViz/otel-collector/common/attrib"
 	"github.com/ExplorViz/otel-collector/common/parsing"
@@ -78,7 +82,14 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 					continue
 				}
 
-				sr.Span.Attributes().PutStr(string(attrib.ExplorVizAttributes.EntityId.Key), se.Id())
+				buf := make([]byte, 8)
+				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(se.ID()))
+				entityID := hex.EncodeToString(buf)
+				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(se.VizObjectID()))
+				vizObjID := hex.EncodeToString(buf)
+				sr.Span.Attributes().PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), entityID)
+				sr.Span.Attributes().PutStr(string(attrib.ExplorVizAttributes.VizObjID.Key), vizObjID)
+
 				m := sr.Span.Attributes().PutEmptyMap(string(attrib.ExplorVizAttributes.EntityDescriptor.Key))
 				se.ToMap().CopyTo(m)
 			}

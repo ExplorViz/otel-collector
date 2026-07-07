@@ -17,9 +17,10 @@ message ParsedSpan {
   string application_name = 9;
 
   string entity_id = 10; // Identifier for the entity described by the span (e.g. function, database, ...)
+  optional string git_commit_hash = 11;
 
   oneof entity_descriptor {
-    CodeDescriptor code_descriptor = 11;
+    CodeDescriptor code_descriptor = 12;
   }
 }
 
@@ -28,5 +29,4 @@ message CodeDescriptor {
   string function_name = 2;
   optional string class_name = 3; // Inner classes may be separated by "."
   optional string language = 4;
-  optional string git_commit_hash = 5;
 }

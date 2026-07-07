@@ -3,6 +3,7 @@ module github.com/ExplorViz/otel-collector
 go 1.25.0
 
 require (
+	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/stretchr/testify v1.11.1
 	github.com/twmb/franz-go v1.21.4
 	go.opentelemetry.io/collector/component v1.61.0
@@ -27,7 +28,6 @@ require (
 
 require (
 	github.com/cenkalti/backoff/v6 v6.0.0 // indirect
-	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect

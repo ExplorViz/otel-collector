@@ -36,18 +36,18 @@ func ToProtobuf(sr trace.SpanReader, se parsing.SpanEntity) (*spanpb.ParsedSpan,
 
 		ApplicationName: appName,
 
-		EntityId: se.Id(),
+		EntityId:      se.VizObjectID(),
+		GitCommitHash: strOrNil(sr.GitCommitHash()),
 	}
 
 	switch e := se.(type) {
 	case parsing.CodeSpanEntity:
 		s.EntityDescriptor = &spanpb.ParsedSpan_CodeDescriptor{
 			CodeDescriptor: &spanpb.CodeDescriptor{
-				FilePath:      e.FilePath,
-				FunctionName:  e.FuncName,
-				ClassName:     strOrNil(e.ClassName),
-				Language:      strOrNil(e.Language),
-				GitCommitHash: strOrNil(e.GitCommitHash),
+				FilePath:     e.FilePath,
+				FunctionName: e.FuncName,
+				ClassName:    strOrNil(e.ClassName),
+				Language:     strOrNil(e.Language),
 			},
 		}
 	default:

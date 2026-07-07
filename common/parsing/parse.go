@@ -23,12 +23,20 @@ import (
 // Otherwise, an error is returned and the returned SpanEntity is invalid.
 type SpanParser func(sr trace.SpanReader) (SpanEntity, error)
 
-// A SpanEntity is some visualizable component for which spans may be created.
+// A SpanEntity is some visualization component for which spans may be created.
+// It either directly corresponds to a visualization object or is contained within one.
 // Examples include functions in code, HTTP endpoints, and databases.
 type SpanEntity interface {
-	// Id returns a unique identifier for this entity. The identifier should be
-	// a composite key based on the entity's type and its attribute values.
-	Id() string
+	// ID returns a unique identifier for this entity.
+	// It is unique in the sense that only one specific combination of attributes should produce that ID.
+	// The identifier should be a composite key based on the entity's type and its attribute values.
+	ID() string
+
+	// VizObjectID returns the unique identifier for the visualization object to which this entity belongs.
+	// Note that multiple entities can belong to the same visualization object, e.g. functions within a file.
+	// The identifier should be a composite key based on the entity's type and its attribute values.
+	// If the entity directly corresponds to a visualization object, this should return the same value as [SpanEntity.ID].
+	VizObjectID() string
 
 	// ToMap encodes the entity as a [pcommon.Map] such that it can be stored within telemetry attributes.
 	// Calling [FromMap] on the result should yield an entity with identical attribute values.
@@ -37,8 +45,12 @@ type SpanEntity interface {
 
 type invalidEntity struct{}
 
-func (invalidEntity) Id() string {
-	panic("Id() called on invalidEntity")
+func (invalidEntity) ID() string {
+	panic("ID() called on invalidEntity")
+}
+
+func (invalidEntity) VizObjectID() string {
+	panic("VizObjectID() called on invalidEntity")
 }
 
 func (invalidEntity) ToMap() pcommon.Map {

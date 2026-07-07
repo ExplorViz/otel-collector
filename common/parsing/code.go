@@ -13,9 +13,10 @@ import (
 
 const CodeSpanEntityType string = "code"
 
-// A CodeSpanEntity represents the execution of a function.
+// A CodeSpanEntity represents the execution of a function. The visualized
 type CodeSpanEntity struct {
 	// FilePath is the path of the file within which the function is contained, with "/" as the separator.
+	// The path should uniquely identify the file within the
 	FilePath string
 
 	// FuncName is the name of the executed function, excluding its signature.
@@ -28,14 +29,14 @@ type CodeSpanEntity struct {
 	// Language specifies the programming language runtime of the executed function. If applicable, the format
 	// should match the well-known values specified by OpenTelemetry's telemetry.sdk.language attribute.
 	Language string
-
-	// GitCommitHash can be specified if the function is contained within a file at a known commit.
-	// This can be used to correlate data from runtime analysis with static analysis data.
-	GitCommitHash string
 }
 
-func (c CodeSpanEntity) Id() string {
-	return c.FilePath + " " + c.FuncName + " " + c.ClassName + " " + c.GitCommitHash
+func (c CodeSpanEntity) ID() string {
+	return "function" + "|" + c.FilePath + "|" + c.ClassName + "|" + c.FuncName
+}
+
+func (c CodeSpanEntity) VizObjectID() string {
+	return "file" + "|" + c.FilePath
 }
 
 func (c CodeSpanEntity) ToMap() pcommon.Map {
@@ -45,7 +46,6 @@ func (c CodeSpanEntity) ToMap() pcommon.Map {
 	m.PutStr("funcName", c.FuncName)
 	m.PutStr("className", c.ClassName)
 	m.PutStr("language", c.Language)
-	m.PutStr("gitCommitHash", c.GitCommitHash)
 	return m
 }
 
@@ -65,14 +65,12 @@ func codeSpanEntityFromMap(m pcommon.Map) (CodeSpanEntity, error) {
 
 	className, _ := m.Get("className")
 	lang, _ := m.Get("language")
-	gitHash, _ := m.Get("gitCommitHash")
 
 	return CodeSpanEntity{
-		FilePath:      filePath.Str(),
-		FuncName:      funcName.Str(),
-		ClassName:     className.Str(),
-		Language:      lang.Str(),
-		GitCommitHash: gitHash.Str(),
+		FilePath:  filePath.Str(),
+		FuncName:  funcName.Str(),
+		ClassName: className.Str(),
+		Language:  lang.Str(),
 	}, nil
 }
 
@@ -105,12 +103,10 @@ func ParseCodeSpan(sr trace.SpanReader) (SpanEntity, error) {
 		return CodeSpanEntity{}, fmt.Errorf("code parser: file path could not be extracted from FQN and %s not given", semconv.CodeFilePathKey)
 	}
 
-	gitHash := sr.SpanStrAttrib(semconv.VCSRefHeadRevisionKey)
-
 	return CodeSpanEntity{
-		FilePath:      filePath,
-		FuncName:      parsedFQN.FuncName,
-		ClassName:     parsedFQN.ClassName,
-		Language:      lang,
-		GitCommitHash: gitHash}, nil
+		FilePath:  filePath,
+		FuncName:  parsedFQN.FuncName,
+		ClassName: parsedFQN.ClassName,
+		Language:  lang,
+	}, nil
 }

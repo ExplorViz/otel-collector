@@ -9,6 +9,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/otel/attribute"
+	semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
 )
 
 // A SpanReader groups a [ptrace.Span] together with its [pcommon.InstrumentationScope]
@@ -104,6 +105,24 @@ func (sr SpanReader) LandscapeTokenSecret() string {
 	spanTokenID, ok := sr.Span.Attributes().Get(string(attrib.ExplorVizAttributes.LandscapeTokenSecret.Key))
 	if ok {
 		return spanTokenID.Str()
+	}
+
+	return ""
+}
+
+// GitCommitHash looks for an attribute specifying the checksum of the Git commit related to the span.
+// The searched attribute key is given by [semconv.VCSRefHeadRevisionKey].
+// The resource attributes are considered first. If no commit hash can be extracted from the resource,
+// then we look at the span attributes as a fallback. If this also fails, the empty string is returned.
+func (sr SpanReader) GitCommitHash() string {
+	resCommitHash, ok := sr.Resource.Attributes().Get(string(semconv.VCSRefHeadRevisionKey))
+	if ok && resCommitHash.Str() != "" {
+		return resCommitHash.Str()
+	}
+
+	spanCommitHash, ok := sr.Span.Attributes().Get(string(semconv.VCSRefHeadRevisionKey))
+	if ok {
+		return spanCommitHash.Str()
 	}
 
 	return ""
