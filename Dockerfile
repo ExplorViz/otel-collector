@@ -4,7 +4,7 @@ RUN apk --update add ca-certificates
 FROM golang:1.25.0 AS build-stage
 WORKDIR /build
 
-COPY ./builder-config.yaml builder-config.yaml
+COPY . .
 
 RUN --mount=type=cache,target=/root/.cache/go-build GO111MODULE=on go install go.opentelemetry.io/collector/cmd/builder@v0.155.0
 RUN --mount=type=cache,target=/root/.cache/go-build builder --config builder-config.yaml
@@ -16,7 +16,7 @@ USER ${USER_UID}
 
 COPY ./collector-config-default.yaml /otelcol/collector-config.yaml
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --chmod=755 --from=build-stage /build/explorviz-otelcol /otelcol
+COPY --chmod=755 --from=build-stage /build/cmd/explorviz-otelcol /otelcol
 
 ENTRYPOINT ["/otelcol/explorviz-otelcol"]
 CMD ["--config", "/otelcol/collector-config.yaml"]
