@@ -19,7 +19,7 @@ processors:
 exporters:
   explorviz:
     broker: localhost:9091
-    topic: telemetry.spans.parsed
+    topic: telemetry.entities
 
   clickhouse:
     endpoint: tcp://localhost:19000

@@ -15,7 +15,6 @@ import (
 	"github.com/ExplorViz/otel-collector/common/attrib"
 	"github.com/ExplorViz/otel-collector/common/parsing"
 	"github.com/ExplorViz/otel-collector/common/token"
-	"github.com/ExplorViz/otel-collector/common/trace"
 )
 
 type tokenValidatorExtension interface {
@@ -65,41 +64,38 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 				scope := ss.Scope()
 				res := rs.Resource()
 
-				sr := trace.SpanReader{
-					Span:     &span,
+				attrs := span.Attributes()
+				tr := attrib.TelemetryReader{
+					Attrs:    &attrs,
 					Scope:    &scope,
 					Resource: &res,
 				}
 
-				if err := p.validateSpan(sr); err != nil {
+				if err := p.validateSpan(tr); err != nil {
 					p.logger.Debug("received invalid span", zap.Error(err))
 					continue
 				}
 
-				se, err := parsing.ParseSpan(sr)
+				entity, err := parsing.ParseTelemetry(tr)
 				if err != nil {
 					p.logger.Debug("failed to parse span", zap.Error(err))
 					continue
 				}
 
+				entity.ToAttributes(&attrs)
 				buf := make([]byte, 8)
-				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(se.ID()))
-				entityID := hex.EncodeToString(buf)
-				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(se.VizObjectID()))
-				vizObjID := hex.EncodeToString(buf)
-				sr.Span.Attributes().PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), entityID)
-				sr.Span.Attributes().PutStr(string(attrib.ExplorVizAttributes.VizObjID.Key), vizObjID)
-
-				m := sr.Span.Attributes().PutEmptyMap(string(attrib.ExplorVizAttributes.EntityDescriptor.Key))
-				se.ToMap().CopyTo(m)
+				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.ID()))
+				attrs.PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), hex.EncodeToString(buf))
+				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.VizObjectID()))
+				attrs.PutStr(string(attrib.ExplorVizAttributes.VizObjectID.Key), hex.EncodeToString(buf))
 			}
 		}
 	}
 	return td, nil
 }
 
-func (p *parsingProcessor) validateSpan(sr trace.SpanReader) error {
-	t := token.LandscapeToken{ID: sr.LandscapeTokenID(), Secret: sr.LandscapeTokenSecret()}
+func (p *parsingProcessor) validateSpan(tr attrib.TelemetryReader) error {
+	t := token.LandscapeToken{ID: tr.LandscapeTokenID(), Secret: tr.LandscapeTokenSecret()}
 
 	// A landscape token ID is always required as we otherwise cannot match data to any landscape.
 	// Whether a secret is required depends on whether token validation is enabled.

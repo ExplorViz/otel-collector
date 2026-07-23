@@ -9,13 +9,13 @@ Interaction with Kafka is implemented using the [franz-go](https://github.com/tw
 The exporter optionally provides the following configuration options:
 
 - `broker` (default = localhost:9091) Network endpoint of the Kafka broker to use
-- `topic` (default = telemetry.spans.parsed) Kafka topic to produce parsing results into
+- `topic` (default = telemetry.entities) Kafka topic to produce parsing results into
 
 ## Example
 
 ```yaml
 exporters:
-  explorviz:
-    broker: kafka-hostname:9092
-    topic: your_topic_name
+    explorviz:
+        broker: kafka-hostname:9092
+        topic: your_topic_name
 ```

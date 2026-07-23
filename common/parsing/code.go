@@ -8,22 +8,22 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
 
-	"github.com/ExplorViz/otel-collector/common/trace"
+	"github.com/ExplorViz/otel-collector/common/attrib"
 )
 
-const CodeSpanEntityType string = "code"
+const CodeEntityType string = "code"
 
-// A CodeSpanEntity represents the execution of a function. The visualized
-type CodeSpanEntity struct {
+// A CodeEntity represents the execution of a function.
+type CodeEntity struct {
 	// FilePath is the path of the file within which the function is contained, with "/" as the separator.
-	// The path should uniquely identify the file within the
+	// The path should be a relative path that can uniquely identify the file within the application.
 	FilePath string
 
 	// FuncName is the name of the executed function, excluding its signature.
 	FuncName string
 
-	// ClassName is the qualified name of the class within which the function is contained (if any).
-	// Inner classes should be separated against containing classes using ".",e.g. ("OuterClass.InnerClass").
+	// ClassName is the name of the class within which the function is contained (if any).
+	// Inner classes should be qualified against containing classes separated with ".", e.g. ("OuterClass.InnerClass").
 	ClassName string
 
 	// Language specifies the programming language runtime of the executed function. If applicable, the format
@@ -31,42 +31,40 @@ type CodeSpanEntity struct {
 	Language string
 }
 
-func (c CodeSpanEntity) ID() string {
+func (c CodeEntity) ID() string {
 	return "function" + "|" + c.FilePath + "|" + c.ClassName + "|" + c.FuncName
 }
 
-func (c CodeSpanEntity) VizObjectID() string {
+func (c CodeEntity) VizObjectID() string {
 	return "file" + "|" + c.FilePath
 }
 
-func (c CodeSpanEntity) ToMap() pcommon.Map {
-	m := pcommon.NewMap()
-	m.PutStr("type", CodeSpanEntityType)
-	m.PutStr("filePath", c.FilePath)
-	m.PutStr("funcName", c.FuncName)
-	m.PutStr("className", c.ClassName)
-	m.PutStr("language", c.Language)
-	return m
+func (c CodeEntity) ToAttributes(attrs *pcommon.Map) {
+	attrs.PutStr(string(attrib.ExplorVizAttributes.EntityType.Key), CodeEntityType)
+	attrs.PutStr(string(attrib.ExplorVizAttributes.CodeFilePath.Key), c.FilePath)
+	attrs.PutStr(string(attrib.ExplorVizAttributes.CodeFunctionName.Key), c.FuncName)
+	attrs.PutStr(string(attrib.ExplorVizAttributes.CodeClassName.Key), c.ClassName)
+	attrs.PutStr(string(attrib.ExplorVizAttributes.CodeLanguage.Key), c.Language)
 }
 
-// codeSpanEntityFromMap initializes a new [CodeSpanEntity] based on the entries of the provided map.
-// If the provided map entries are incomplete (meaning a mandatory field is missing),
-// then a zero-initialized CodeSpanEntity and an error is returned.
-func codeSpanEntityFromMap(m pcommon.Map) (CodeSpanEntity, error) {
-	filePath, ok := m.Get("filePath")
+// codeEntityFromAttribs initializes a new [CodeEntity] based on the entries of the provided map.
+// If the provided map entries are incomplete (meaning a mandatory attribute is missing),
+// then a zero-initialized CodeEntity and an error is returned.
+func codeEntityFromAttribs(m pcommon.Map) (CodeEntity, error) {
+	filePath, ok := m.Get(string(attrib.ExplorVizAttributes.CodeFilePath.Key))
 	if !ok || filePath.Str() == "" {
-		return CodeSpanEntity{}, errors.New(`empty or missing string map entry for key "filePath"`)
+		return CodeEntity{}, errors.New(`empty or missing string attribute for file path`)
 	}
 
-	funcName, ok := m.Get("funcName")
+	funcName, ok := m.Get(string(attrib.ExplorVizAttributes.CodeFunctionName.Key))
 	if !ok || funcName.Str() == "" {
-		return CodeSpanEntity{}, errors.New(`empty or missing string map entry for key "funcName"`)
+		return CodeEntity{}, errors.New(`empty or missing string attribute for function name`)
 	}
 
-	className, _ := m.Get("className")
-	lang, _ := m.Get("language")
+	className, _ := m.Get(string(attrib.ExplorVizAttributes.CodeClassName.Key))
+	lang, _ := m.Get(string(attrib.ExplorVizAttributes.CodeLanguage.Key))
 
-	return CodeSpanEntity{
+	return CodeEntity{
 		FilePath:  filePath.Str(),
 		FuncName:  funcName.Str(),
 		ClassName: className.Str(),
@@ -74,8 +72,8 @@ func codeSpanEntityFromMap(m pcommon.Map) (CodeSpanEntity, error) {
 	}, nil
 }
 
-// ParseCodeSpan parses spans describing function executions by looking for attributes conforming to the
-// [OTel semconv code attributes]. For a span to be successfully parsed, it needs to provide:
+// ParseCodeTelemetry parses telemetry describing function executions by looking for attributes conforming to the
+// [OTel semconv code attributes]. For telemetry to be successfully parsed, it needs to provide:
 //   - a relative path of the file containing the function, ideally relative to the repository root
 //   - the name of the executed function
 //
@@ -83,27 +81,27 @@ func codeSpanEntityFromMap(m pcommon.Map) (CodeSpanEntity, error) {
 // name (FQN) for file path information. Only if this is insufficient will it look for an explicit file path.
 //
 // [OTel semconv code attributes]: https://opentelemetry.io/docs/specs/semconv/registry/attributes/code/
-func ParseCodeSpan(sr trace.SpanReader) (SpanEntity, error) {
-	fqn := sr.SpanStrAttrib(semconv.CodeFunctionNameKey)
+func ParseCodeTelemetry(tr attrib.TelemetryReader) (Entity, error) {
+	fqn := tr.StrAttrib(semconv.CodeFunctionNameKey)
 	if fqn == "" {
-		return &CodeSpanEntity{}, errors.New("code parser: empty or missing function name attribute")
+		return &CodeEntity{}, errors.New("code parser: empty or missing function name attribute")
 	}
 
-	lang := sr.SpanStrAttrib(semconv.TelemetrySDKLanguageKey)
+	lang := tr.StrAttrib(semconv.TelemetrySDKLanguageKey)
 
 	parsedFQN := ParseFunctionFQN(fqn, lang)
 
 	if parsedFQN.FuncName == "" {
-		return &CodeSpanEntity{}, errors.New("code parser: function name could not be extracted")
+		return &CodeEntity{}, errors.New("code parser: function name could not be extracted")
 	}
 
-	filePath := cmp.Or(parsedFQN.FilePath, sr.SpanStrAttrib(semconv.CodeFilePathKey))
+	filePath := cmp.Or(parsedFQN.FilePath, tr.StrAttrib(semconv.CodeFilePathKey))
 
 	if filePath == "" {
-		return CodeSpanEntity{}, fmt.Errorf("code parser: file path could not be extracted from FQN and %s not given", semconv.CodeFilePathKey)
+		return CodeEntity{}, fmt.Errorf("code parser: file path could not be extracted from FQN and %s not given", semconv.CodeFilePathKey)
 	}
 
-	return CodeSpanEntity{
+	return CodeEntity{
 		FilePath:  filePath,
 		FuncName:  parsedFQN.FuncName,
 		ClassName: parsedFQN.ClassName,
