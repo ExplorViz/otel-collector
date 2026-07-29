@@ -19,7 +19,11 @@ processors:
 exporters:
   explorviz:
     broker: localhost:9091
-    topic: telemetry.spans.parsed
+    topic: telemetry.entities
+
+  clickhouse:
+    endpoint: tcp://localhost:19000
+    create_schema: false
 
   debug:
     verbosity: detailed
@@ -37,6 +41,7 @@ service:
       processors: [explorviz_parsing]
       exporters:
         - explorviz
+        - clickhouse
         # - debug # Uncomment for direct output to stdout
     metrics:
       receivers: [otlp]

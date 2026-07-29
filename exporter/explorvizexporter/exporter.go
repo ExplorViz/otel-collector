@@ -7,14 +7,12 @@ import (
 
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/ExplorViz/otel-collector/common/attrib"
 	"github.com/ExplorViz/otel-collector/common/parsing"
-	"github.com/ExplorViz/otel-collector/common/trace"
 	"github.com/ExplorViz/otel-collector/exporter/explorvizexporter/internal/encoding"
 )
 
@@ -85,24 +83,19 @@ loop:
 				default:
 				}
 
-				span := ss.Spans().At(k)
+				attrs := ss.Spans().At(k).Attributes()
 				scope := ss.Scope()
 				res := rs.Resource()
-				sr := trace.SpanReader{Span: &span, Scope: &scope, Resource: &res}
 
-				entityDesc, ok := span.Attributes().Get(string(attrib.ExplorVizAttributes.EntityDescriptor.Key))
-				if !ok || entityDesc.Type() != pcommon.ValueTypeMap {
-					e.logger.Warn("missing or invalid entity descriptor attribute for span, skipping export")
-					continue
-				}
-
-				entity, err := parsing.FromMap(entityDesc.Map())
+				entity, err := parsing.FromAttributes(attrs)
 				if err != nil {
 					e.logger.Warn("failed to reconstruct entity from descriptor map, skipping export", zap.Error(err))
 					continue
 				}
 
-				pb, err := encoding.ToProtobuf(sr, entity)
+				tr := attrib.TelemetryReader{Attrs: &attrs, Scope: &scope, Resource: &res}
+
+				pb, err := encoding.ToProtobuf(tr, entity)
 				if err != nil {
 					e.logger.Warn("failed to convert to protobuf message, skipping export", zap.Error(err))
 					continue

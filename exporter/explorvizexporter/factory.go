@@ -22,7 +22,7 @@ func NewFactory() exporter.Factory {
 func createDefaultConfig() component.Config {
 	return &Config{
 		Broker: "localhost:9091",
-		Topic:  "telemetry.spans.parsed",
+		Topic:  "telemetry.entities",
 	}
 }
 

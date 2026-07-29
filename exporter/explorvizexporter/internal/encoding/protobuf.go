@@ -7,51 +7,48 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 
 	"github.com/ExplorViz/otel-collector/common/attrib"
-	"github.com/ExplorViz/otel-collector/common/genproto/spanpb"
+	"github.com/ExplorViz/otel-collector/common/genproto/telemetrypb"
 	"github.com/ExplorViz/otel-collector/common/parsing"
-	"github.com/ExplorViz/otel-collector/common/trace"
 )
 
-func ToProtobuf(sr trace.SpanReader, se parsing.SpanEntity) (*spanpb.ParsedSpan, error) {
+func ToProtobuf(tr attrib.TelemetryReader, se parsing.Entity) (*telemetrypb.TelemetryEntity, error) {
 	if se == nil {
-		return &spanpb.ParsedSpan{}, errors.New("protobuf conversion: encountered nil entity")
+		return &telemetrypb.TelemetryEntity{}, errors.New("protobuf conversion: encountered nil entity")
 	}
 
-	appName := sr.ResourceStrAttrib(semconv.ServiceNameKey)
-	if appName == "" {
-		appName = attrib.FallbackValues.ServiceName
-	}
+	entityID := tr.StrAttrib(attrib.ExplorVizAttributes.EntityID.Key)
+	vizObjectID := tr.StrAttrib(attrib.ExplorVizAttributes.VizObjectID.Key)
 
-	s := spanpb.ParsedSpan{
-		LandscapeTokenId:     sr.LandscapeTokenID(),
-		LandscapeTokenSecret: sr.LandscapeTokenSecret(),
+	s := telemetrypb.TelemetryEntity{
+		LandscapeTokenId:     tr.LandscapeTokenID(),
+		LandscapeTokenSecret: tr.LandscapeTokenSecret(),
 
-		TraceId:  sr.TraceID(),
-		SpanId:   sr.SpanID(),
-		SpanName: sr.Span.Name(),
-		ParentId: strOrNil(sr.ParentSpanID()),
-
-		StartTime: uint64(sr.Span.StartTimestamp()),
-		EndTime:   uint64(sr.Span.EndTimestamp()),
-
-		ApplicationName: appName,
-
-		EntityId: se.Id(),
+		GitCommitHash: strOrNil(tr.GitCommitHash()),
 	}
 
 	switch e := se.(type) {
-	case parsing.CodeSpanEntity:
-		s.EntityDescriptor = &spanpb.ParsedSpan_CodeDescriptor{
-			CodeDescriptor: &spanpb.CodeDescriptor{
-				FilePath:      e.FilePath,
-				FunctionName:  e.FuncName,
-				ClassName:     strOrNil(e.ClassName),
-				Language:      strOrNil(e.Language),
-				GitCommitHash: strOrNil(e.GitCommitHash),
+	case parsing.CodeEntity:
+		appName := tr.ResourceStrAttrib(semconv.ServiceNameKey)
+		if appName == "" {
+			appName = attrib.FallbackValues.ServiceName
+		}
+
+		s.EntityDescriptor = &telemetrypb.TelemetryEntity_CodeDescriptor{
+			CodeDescriptor: &telemetrypb.CodeDescriptor{
+				ApplicationName: appName,
+
+				FileId:   vizObjectID,
+				FilePath: e.FilePath,
+
+				FunctionId:   entityID,
+				FunctionName: e.FuncName,
+
+				ClassName: strOrNil(e.ClassName),
+				Language:  strOrNil(e.Language),
 			},
 		}
 	default:
-		return &spanpb.ParsedSpan{}, fmt.Errorf("protobuf conversion: encountered unhandled span entity type")
+		return &telemetrypb.TelemetryEntity{}, fmt.Errorf("protobuf conversion: encountered unhandled entity type")
 	}
 
 	return &s, nil
