@@ -37,15 +37,34 @@ service:
   extensions: [explorviz_token_validator]
   pipelines:
     traces:
-      receivers: [otlp]
-      processors: [explorviz_parsing]
+      receivers:
+        - otlp
+      processors:
+        - attributes/add_default_landscape_token
+        - explorviz_parsing
       exporters:
         - explorviz
         - clickhouse
         # - debug # Uncomment for direct output to stdout
+
     metrics:
-      receivers: [otlp]
-      exporters: [debug]
+      receivers:
+        - otlp
+      processors:
+        - attributes/add_default_landscape_token
+        - explorviz_parsing
+      exporters:
+        - explorviz
+        - clickhouse
+        # - debug # Uncomment for direct output to stdout
+
     logs:
-      receivers: [otlp]
-      exporters: [debug]
+      receivers:
+        - otlp
+      processors:
+        - attributes/add_default_landscape_token
+        - explorviz_parsing
+      exporters:
+        - explorviz
+        - clickhouse
+        # - debug # Uncomment for direct output to stdout

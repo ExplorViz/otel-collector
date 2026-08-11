@@ -7,6 +7,8 @@ import (
 
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/pdata/plog"
+	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -86,6 +88,117 @@ loop:
 				attrs := ss.Spans().At(k).Attributes()
 				scope := ss.Scope()
 				res := rs.Resource()
+
+				entity, err := parsing.FromAttributes(attrs)
+				if err != nil {
+					e.logger.Warn("failed to reconstruct entity from descriptor map, skipping export", zap.Error(err))
+					continue
+				}
+
+				tr := attrib.TelemetryReader{Attrs: &attrs, Scope: &scope, Resource: &res}
+
+				pb, err := encoding.ToProtobuf(tr, entity)
+				if err != nil {
+					e.logger.Warn("failed to convert to protobuf message, skipping export", zap.Error(err))
+					continue
+				}
+
+				out, err := proto.Marshal(pb)
+				if err != nil {
+					e.logger.Warn("failed to encode protobuf, skipping export", zap.Error(err))
+					continue
+				}
+
+				wg.Add(1)
+				e.client.Produce(produceCtx, &kgo.Record{
+					Key:   []byte(pb.GetLandscapeTokenId()),
+					Value: out,
+				}, promise)
+			}
+		}
+	}
+
+	wg.Wait()
+	return firstErr
+}
+
+func (e *explorVizExporter) consumeMetrics(ctx context.Context, md pmetric.Metrics) error {
+	var (
+		wg       sync.WaitGroup
+		once     sync.Once
+		firstErr error
+	)
+	produceCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	promise := func(r *kgo.Record, err error) {
+		defer wg.Done()
+
+		if err != nil {
+			once.Do(func() {
+				firstErr = err
+				cancel()
+			})
+		}
+	}
+
+loop:
+	for i := 0; i < md.ResourceMetrics().Len(); i++ {
+		rm := md.ResourceMetrics().At(i)
+		for j := 0; j < rm.ScopeMetrics().Len(); j++ {
+			sm := rm.ScopeMetrics().At(j)
+			for k := 0; k < sm.Metrics().Len(); k++ {
+				select {
+				case <-produceCtx.Done():
+					break loop
+				default:
+				}
+
+				// TODO
+				_ = promise
+			}
+		}
+	}
+
+	wg.Wait()
+	return firstErr
+}
+
+func (e *explorVizExporter) consumeLogs(ctx context.Context, ld plog.Logs) error {
+	var (
+		wg       sync.WaitGroup
+		once     sync.Once
+		firstErr error
+	)
+	produceCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	promise := func(r *kgo.Record, err error) {
+		defer wg.Done()
+
+		if err != nil {
+			once.Do(func() {
+				firstErr = err
+				cancel()
+			})
+		}
+	}
+
+loop:
+	for i := 0; i < ld.ResourceLogs().Len(); i++ {
+		rl := ld.ResourceLogs().At(i)
+		for j := 0; j < rl.ScopeLogs().Len(); j++ {
+			sl := rl.ScopeLogs().At(j)
+			for k := 0; k < sl.LogRecords().Len(); k++ {
+				select {
+				case <-produceCtx.Done():
+					break loop
+				default:
+				}
+
+				attrs := sl.LogRecords().At(k).Attributes()
+				scope := sl.Scope()
+				res := rl.Resource()
 
 				entity, err := parsing.FromAttributes(attrs)
 				if err != nil {

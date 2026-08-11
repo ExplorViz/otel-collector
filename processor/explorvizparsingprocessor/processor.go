@@ -7,6 +7,8 @@ import (
 	"errors"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/pdata/plog"
+	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/zap"
 
@@ -71,7 +73,7 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 					Resource: &res,
 				}
 
-				if err := p.validateSpan(tr); err != nil {
+				if err := p.validate(tr); err != nil {
 					p.logger.Debug("received invalid span", zap.Error(err))
 					continue
 				}
@@ -94,7 +96,62 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 	return td, nil
 }
 
-func (p *parsingProcessor) validateSpan(tr attrib.TelemetryReader) error {
+func (p *parsingProcessor) processMetrics(ctx context.Context, md pmetric.Metrics) (pmetric.Metrics, error) {
+	for i := 0; i < md.ResourceMetrics().Len(); i++ {
+		rm := md.ResourceMetrics().At(i)
+		for j := 0; j < rm.ScopeMetrics().Len(); j++ {
+			sm := rm.ScopeMetrics().At(j)
+			for k := 0; k < sm.Metrics().Len(); k++ {
+				m := sm.Metrics().At(k)
+				_ = m
+				// TODO
+			}
+		}
+	}
+	return md, nil
+}
+
+func (p *parsingProcessor) processLogs(ctx context.Context, ld plog.Logs) (plog.Logs, error) {
+	for i := 0; i < ld.ResourceLogs().Len(); i++ {
+		rl := ld.ResourceLogs().At(i)
+		for j := 0; j < rl.ScopeLogs().Len(); j++ {
+			sl := rl.ScopeLogs().At(j)
+			for k := 0; k < sl.LogRecords().Len(); k++ {
+				log := sl.LogRecords().At(k)
+				scope := sl.Scope()
+				res := rl.Resource()
+
+				attrs := log.Attributes()
+				tr := attrib.TelemetryReader{
+					Attrs:    &attrs,
+					Scope:    &scope,
+					Resource: &res,
+				}
+
+				if err := p.validate(tr); err != nil {
+					p.logger.Debug("received invalid log", zap.Error(err))
+					continue
+				}
+
+				entity, err := parsing.ParseTelemetry(tr)
+				if err != nil {
+					p.logger.Debug("failed to parse log", zap.Error(err))
+					continue
+				}
+
+				entity.ToAttributes(&attrs)
+				buf := make([]byte, 8)
+				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.ID()))
+				attrs.PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), hex.EncodeToString(buf))
+				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.VizObjectID()))
+				attrs.PutStr(string(attrib.ExplorVizAttributes.VizObjectID.Key), hex.EncodeToString(buf))
+			}
+		}
+	}
+	return ld, nil
+}
+
+func (p *parsingProcessor) validate(tr attrib.TelemetryReader) error {
 	t := token.LandscapeToken{ID: tr.LandscapeTokenID(), Secret: tr.LandscapeTokenSecret()}
 
 	// A landscape token ID is always required as we otherwise cannot match data to any landscape.

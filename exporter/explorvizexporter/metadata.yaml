@@ -9,6 +9,6 @@ description: |
 status:
   class: exporter
   stability:
-    development: [traces]
+    development: [traces, metrics, logs]
 
 sem_conv_version: 1.42.0

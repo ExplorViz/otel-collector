@@ -64,7 +64,7 @@ var parserChain = []TelemetryParser{
 }
 
 // ParseTelemetry applies a series of parsing functions to the given [attrib.TelemetryReader]
-// which attempt to extract a [Entity] that the telemetry describes. If insufficient
+// which attempt to extract an [Entity] that the telemetry describes. If insufficient
 // information is provided within the attributes for a parser to extract an entity, the next
 // parser in the chain is used. The first parsing function to return a non-error value gives
 // the final result. If all parsing functions fail, an error is returned and the returned entity is invalid.
