@@ -36,12 +36,13 @@ type Entity interface {
 	// The identifier should be a composite key based on the entity's type and its attribute values.
 	ID() string
 
-	// VizObjectID returns a unique identifier for the visualization object to which this telemetry belongs, e.g. building.
+	// TelemetryKey returns a unique identifier for the visualization object to which this telemetry belongs, e.g. building.
+	// This identifier can be used in the frontend to look up telemetry for the visualization object.
 	// The identifier should be a composite key based on the entity's type and its attribute values.
-	VizObjectID() string
+	TelemetryKey() string
 
 	// ToAttributes encodes the entity as OTel attributes and stores it within the provided attributes map.
-	// Calling [FromMap] on the modified attributes map should yield an entity of the same type with identical field values.
+	// Calling [FromAttributes] on the modified attributes map should yield an entity of the same type with identical field values.
 	ToAttributes(attrs *pcommon.Map)
 }
 
@@ -51,8 +52,8 @@ func (invalidEntity) ID() string {
 	panic("ID() called on invalidEntity")
 }
 
-func (invalidEntity) VizObjectID() string {
-	panic("VizObjectID() called on invalidEntity")
+func (invalidEntity) TelemetryKey() string {
+	panic("TelemetryKey() called on invalidEntity")
 }
 
 func (invalidEntity) ToAttributes(_ *pcommon.Map) {

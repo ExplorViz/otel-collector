@@ -20,9 +20,9 @@ var ExplorVizAttributes = struct {
 
 	// Uniquely identifies an entity extracted from telemetry data. This should be a composite ID encoding the entity's type and properties,
 	// which is subsequently hashed using the 64-bit xxHash algorithm and represented as a hexadecimal string.
-	EntityID    ExplorVizAttribute
-	EntityType  ExplorVizAttribute // Indicates the kind of entity extracted, e.g. "function" or "database".
-	VizObjectID ExplorVizAttribute // Identifier / lookup key of the visualization object to which this telemetry belongs, e.g. building
+	EntityID     ExplorVizAttribute
+	EntityType   ExplorVizAttribute // Indicates the kind of entity extracted, e.g. "function" or "database".
+	TelemetryKey ExplorVizAttribute // Identifier / lookup key of the visualization object to which this telemetry belongs, e.g. building
 
 	CodeFileID       ExplorVizAttribute
 	CodeFilePath     ExplorVizAttribute
@@ -33,9 +33,9 @@ var ExplorVizAttributes = struct {
 	LandscapeTokenID:     ExplorVizAttribute{Key: "explorviz.token.id", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
 	LandscapeTokenSecret: ExplorVizAttribute{Key: "explorviz.token.secret", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
 
-	EntityID:    ExplorVizAttribute{Key: "explorviz.entity.id", DefaultValue: pcommon.NewValueStr("unknown-entity-id")},
-	EntityType:  ExplorVizAttribute{Key: "explorviz.entity.type", DefaultValue: pcommon.NewValueStr("unknown-entity-type")},
-	VizObjectID: ExplorVizAttribute{Key: "explorviz.vizobject.id", DefaultValue: pcommon.NewValueStr("unknown-vizobject-id")},
+	EntityID:     ExplorVizAttribute{Key: "explorviz.entity.id", DefaultValue: pcommon.NewValueStr("unknown-entity-id")},
+	EntityType:   ExplorVizAttribute{Key: "explorviz.entity.type", DefaultValue: pcommon.NewValueStr("unknown-entity-type")},
+	TelemetryKey: ExplorVizAttribute{Key: "explorviz.entity.telemetrykey", DefaultValue: pcommon.NewValueStr("unknown-telemetry-key")},
 
 	CodeFileID:       ExplorVizAttribute{Key: "explorviz.code.file.id", DefaultValue: pcommon.NewValueStr("unknown-file-id")},
 	CodeFilePath:     ExplorVizAttribute{Key: "explorviz.code.file.path", DefaultValue: pcommon.NewValueStr("unknown-file-path")},
