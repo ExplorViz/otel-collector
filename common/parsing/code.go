@@ -35,7 +35,7 @@ func (c CodeEntity) ID() string {
 	return "function" + "|" + c.FilePath + "|" + c.ClassName + "|" + c.FuncName
 }
 
-func (c CodeEntity) VizObjectID() string {
+func (c CodeEntity) TelemetryKey() string {
 	return "file" + "|" + c.FilePath
 }
 

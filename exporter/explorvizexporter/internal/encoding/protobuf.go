@@ -17,7 +17,7 @@ func ToProtobuf(tr attrib.TelemetryReader, se parsing.Entity) (*telemetrypb.Tele
 	}
 
 	entityID := tr.StrAttrib(attrib.ExplorVizAttributes.EntityID.Key)
-	vizObjectID := tr.StrAttrib(attrib.ExplorVizAttributes.VizObjectID.Key)
+	telemetryKey := tr.StrAttrib(attrib.ExplorVizAttributes.TelemetryKey.Key)
 
 	s := telemetrypb.TelemetryEntity{
 		LandscapeTokenId:     tr.LandscapeTokenID(),
@@ -37,7 +37,7 @@ func ToProtobuf(tr attrib.TelemetryReader, se parsing.Entity) (*telemetrypb.Tele
 			CodeDescriptor: &telemetrypb.CodeDescriptor{
 				ApplicationName: appName,
 
-				FileId:   vizObjectID,
+				FileId:   telemetryKey,
 				FilePath: e.FilePath,
 
 				FunctionId:   entityID,

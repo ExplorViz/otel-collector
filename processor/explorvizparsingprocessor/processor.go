@@ -88,8 +88,8 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 				buf := make([]byte, 8)
 				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.ID()))
 				attrs.PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), hex.EncodeToString(buf))
-				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.VizObjectID()))
-				attrs.PutStr(string(attrib.ExplorVizAttributes.VizObjectID.Key), hex.EncodeToString(buf))
+				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.TelemetryKey()))
+				attrs.PutStr(string(attrib.ExplorVizAttributes.TelemetryKey.Key), hex.EncodeToString(buf))
 			}
 		}
 	}
@@ -143,8 +143,8 @@ func (p *parsingProcessor) processLogs(ctx context.Context, ld plog.Logs) (plog.
 				buf := make([]byte, 8)
 				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.ID()))
 				attrs.PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), hex.EncodeToString(buf))
-				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.VizObjectID()))
-				attrs.PutStr(string(attrib.ExplorVizAttributes.VizObjectID.Key), hex.EncodeToString(buf))
+				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.TelemetryKey()))
+				attrs.PutStr(string(attrib.ExplorVizAttributes.TelemetryKey.Key), hex.EncodeToString(buf))
 			}
 		}
 	}
