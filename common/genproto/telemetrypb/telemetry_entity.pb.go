@@ -25,9 +25,10 @@ type TelemetryEntity struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	LandscapeTokenId     string                 `protobuf:"bytes,1,opt,name=landscape_token_id,json=landscapeTokenId,proto3" json:"landscape_token_id,omitempty"`
 	LandscapeTokenSecret string                 `protobuf:"bytes,2,opt,name=landscape_token_secret,json=landscapeTokenSecret,proto3" json:"landscape_token_secret,omitempty"`
-	GitCommitHash        *string                `protobuf:"bytes,4,opt,name=git_commit_hash,json=gitCommitHash,proto3,oneof" json:"git_commit_hash,omitempty"`
+	GitCommitHash        *string                `protobuf:"bytes,3,opt,name=git_commit_hash,json=gitCommitHash,proto3,oneof" json:"git_commit_hash,omitempty"`
 	// Types that are valid to be assigned to EntityDescriptor:
 	//
+	//	*TelemetryEntity_GenericServiceDescriptor
 	//	*TelemetryEntity_CodeDescriptor
 	EntityDescriptor isTelemetryEntity_EntityDescriptor `protobuf_oneof:"entity_descriptor"`
 	unknownFields    protoimpl.UnknownFields
@@ -92,6 +93,15 @@ func (x *TelemetryEntity) GetEntityDescriptor() isTelemetryEntity_EntityDescript
 	return nil
 }
 
+func (x *TelemetryEntity) GetGenericServiceDescriptor() *GenericServiceDescriptor {
+	if x != nil {
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_GenericServiceDescriptor); ok {
+			return x.GenericServiceDescriptor
+		}
+	}
+	return nil
+}
+
 func (x *TelemetryEntity) GetCodeDescriptor() *CodeDescriptor {
 	if x != nil {
 		if x, ok := x.EntityDescriptor.(*TelemetryEntity_CodeDescriptor); ok {
@@ -105,28 +115,91 @@ type isTelemetryEntity_EntityDescriptor interface {
 	isTelemetryEntity_EntityDescriptor()
 }
 
+type TelemetryEntity_GenericServiceDescriptor struct {
+	GenericServiceDescriptor *GenericServiceDescriptor `protobuf:"bytes,4,opt,name=generic_service_descriptor,json=genericServiceDescriptor,proto3,oneof"`
+}
+
 type TelemetryEntity_CodeDescriptor struct {
 	CodeDescriptor *CodeDescriptor `protobuf:"bytes,5,opt,name=code_descriptor,json=codeDescriptor,proto3,oneof"`
 }
 
+func (*TelemetryEntity_GenericServiceDescriptor) isTelemetryEntity_EntityDescriptor() {}
+
 func (*TelemetryEntity_CodeDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
+// *
+// GenericServiceDescriptor describes a service for which no entity information
+// apart from the service name could be deducted.
+type GenericServiceDescriptor struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	ServiceTelemetryKey string                 `protobuf:"bytes,1,opt,name=service_telemetry_key,json=serviceTelemetryKey,proto3" json:"service_telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this service
+	ServiceName         string                 `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *GenericServiceDescriptor) Reset() {
+	*x = GenericServiceDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenericServiceDescriptor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenericServiceDescriptor) ProtoMessage() {}
+
+func (x *GenericServiceDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenericServiceDescriptor.ProtoReflect.Descriptor instead.
+func (*GenericServiceDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GenericServiceDescriptor) GetServiceTelemetryKey() string {
+	if x != nil {
+		return x.ServiceTelemetryKey
+	}
+	return ""
+}
+
+func (x *GenericServiceDescriptor) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+// *
+// CodeDescriptor describes a function in code.
 type CodeDescriptor struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	ApplicationName string                 `protobuf:"bytes,1,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`
-	FileId          string                 `protobuf:"bytes,2,opt,name=file_id,json=fileId,proto3" json:"file_id,omitempty"`                   // Lookup key for retrieving telemetry for this file
-	FilePath        string                 `protobuf:"bytes,3,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`             // File path, separated by "/"
-	FunctionId      string                 `protobuf:"bytes,4,opt,name=function_id,json=functionId,proto3" json:"function_id,omitempty"`       // Lookup key for retrieving telemetry for this function
-	FunctionName    string                 `protobuf:"bytes,5,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"` // Name of the function, excluding signature
-	ClassName       *string                `protobuf:"bytes,6,opt,name=class_name,json=className,proto3,oneof" json:"class_name,omitempty"`    // Inner classes may be separated by "."
-	Language        *string                `protobuf:"bytes,7,opt,name=language,proto3,oneof" json:"language,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	ApplicationName      string                 `protobuf:"bytes,1,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`
+	FileTelemetryKey     string                 `protobuf:"bytes,2,opt,name=file_telemetry_key,json=fileTelemetryKey,proto3" json:"file_telemetry_key,omitempty"`             // Lookup key for retrieving telemetry for this file
+	FilePath             string                 `protobuf:"bytes,3,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`                                       // File path, separated by "/"
+	FunctionTelemetryKey string                 `protobuf:"bytes,4,opt,name=function_telemetry_key,json=functionTelemetryKey,proto3" json:"function_telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this function
+	FunctionName         string                 `protobuf:"bytes,5,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`                           // Name of the function, excluding signature
+	ClassName            *string                `protobuf:"bytes,6,opt,name=class_name,json=className,proto3,oneof" json:"class_name,omitempty"`                              // Inner classes may be separated by "."
+	Language             *string                `protobuf:"bytes,7,opt,name=language,proto3,oneof" json:"language,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CodeDescriptor) Reset() {
 	*x = CodeDescriptor{}
-	mi := &file_telemetry_entity_proto_msgTypes[1]
+	mi := &file_telemetry_entity_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -138,7 +211,7 @@ func (x *CodeDescriptor) String() string {
 func (*CodeDescriptor) ProtoMessage() {}
 
 func (x *CodeDescriptor) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_entity_proto_msgTypes[1]
+	mi := &file_telemetry_entity_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -151,7 +224,7 @@ func (x *CodeDescriptor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeDescriptor.ProtoReflect.Descriptor instead.
 func (*CodeDescriptor) Descriptor() ([]byte, []int) {
-	return file_telemetry_entity_proto_rawDescGZIP(), []int{1}
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CodeDescriptor) GetApplicationName() string {
@@ -161,9 +234,9 @@ func (x *CodeDescriptor) GetApplicationName() string {
 	return ""
 }
 
-func (x *CodeDescriptor) GetFileId() string {
+func (x *CodeDescriptor) GetFileTelemetryKey() string {
 	if x != nil {
-		return x.FileId
+		return x.FileTelemetryKey
 	}
 	return ""
 }
@@ -175,9 +248,9 @@ func (x *CodeDescriptor) GetFilePath() string {
 	return ""
 }
 
-func (x *CodeDescriptor) GetFunctionId() string {
+func (x *CodeDescriptor) GetFunctionTelemetryKey() string {
 	if x != nil {
-		return x.FunctionId
+		return x.FunctionTelemetryKey
 	}
 	return ""
 }
@@ -207,20 +280,23 @@ var File_telemetry_entity_proto protoreflect.FileDescriptor
 
 const file_telemetry_entity_proto_rawDesc = "" +
 	"\n" +
-	"\x16telemetry_entity.proto\"\x87\x02\n" +
+	"\x16telemetry_entity.proto\"\xe2\x02\n" +
 	"\x0fTelemetryEntity\x12,\n" +
 	"\x12landscape_token_id\x18\x01 \x01(\tR\x10landscapeTokenId\x124\n" +
 	"\x16landscape_token_secret\x18\x02 \x01(\tR\x14landscapeTokenSecret\x12+\n" +
-	"\x0fgit_commit_hash\x18\x04 \x01(\tH\x01R\rgitCommitHash\x88\x01\x01\x12:\n" +
+	"\x0fgit_commit_hash\x18\x03 \x01(\tH\x01R\rgitCommitHash\x88\x01\x01\x12Y\n" +
+	"\x1ageneric_service_descriptor\x18\x04 \x01(\v2\x19.GenericServiceDescriptorH\x00R\x18genericServiceDescriptor\x12:\n" +
 	"\x0fcode_descriptor\x18\x05 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptorB\x13\n" +
 	"\x11entity_descriptorB\x12\n" +
-	"\x10_git_commit_hash\"\x98\x02\n" +
+	"\x10_git_commit_hash\"q\n" +
+	"\x18GenericServiceDescriptor\x122\n" +
+	"\x15service_telemetry_key\x18\x01 \x01(\tR\x13serviceTelemetryKey\x12!\n" +
+	"\fservice_name\x18\x02 \x01(\tR\vserviceName\"\xc2\x02\n" +
 	"\x0eCodeDescriptor\x12)\n" +
-	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12\x17\n" +
-	"\afile_id\x18\x02 \x01(\tR\x06fileId\x12\x1b\n" +
-	"\tfile_path\x18\x03 \x01(\tR\bfilePath\x12\x1f\n" +
-	"\vfunction_id\x18\x04 \x01(\tR\n" +
-	"functionId\x12#\n" +
+	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12,\n" +
+	"\x12file_telemetry_key\x18\x02 \x01(\tR\x10fileTelemetryKey\x12\x1b\n" +
+	"\tfile_path\x18\x03 \x01(\tR\bfilePath\x124\n" +
+	"\x16function_telemetry_key\x18\x04 \x01(\tR\x14functionTelemetryKey\x12#\n" +
 	"\rfunction_name\x18\x05 \x01(\tR\ffunctionName\x12\"\n" +
 	"\n" +
 	"class_name\x18\x06 \x01(\tH\x00R\tclassName\x88\x01\x01\x12\x1f\n" +
@@ -240,18 +316,20 @@ func file_telemetry_entity_proto_rawDescGZIP() []byte {
 	return file_telemetry_entity_proto_rawDescData
 }
 
-var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_telemetry_entity_proto_goTypes = []any{
-	(*TelemetryEntity)(nil), // 0: TelemetryEntity
-	(*CodeDescriptor)(nil),  // 1: CodeDescriptor
+	(*TelemetryEntity)(nil),          // 0: TelemetryEntity
+	(*GenericServiceDescriptor)(nil), // 1: GenericServiceDescriptor
+	(*CodeDescriptor)(nil),           // 2: CodeDescriptor
 }
 var file_telemetry_entity_proto_depIdxs = []int32{
-	1, // 0: TelemetryEntity.code_descriptor:type_name -> CodeDescriptor
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 0: TelemetryEntity.generic_service_descriptor:type_name -> GenericServiceDescriptor
+	2, // 1: TelemetryEntity.code_descriptor:type_name -> CodeDescriptor
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_telemetry_entity_proto_init() }
@@ -260,16 +338,17 @@ func file_telemetry_entity_proto_init() {
 		return
 	}
 	file_telemetry_entity_proto_msgTypes[0].OneofWrappers = []any{
+		(*TelemetryEntity_GenericServiceDescriptor)(nil),
 		(*TelemetryEntity_CodeDescriptor)(nil),
 	}
-	file_telemetry_entity_proto_msgTypes[1].OneofWrappers = []any{}
+	file_telemetry_entity_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_telemetry_entity_proto_rawDesc), len(file_telemetry_entity_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

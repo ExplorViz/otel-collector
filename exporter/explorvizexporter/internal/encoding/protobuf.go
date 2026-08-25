@@ -11,47 +11,54 @@ import (
 	"github.com/ExplorViz/otel-collector/common/parsing"
 )
 
-func ToProtobuf(tr attrib.TelemetryReader, se parsing.Entity) (*telemetrypb.TelemetryEntity, error) {
-	if se == nil {
+func ToProtobuf(tr attrib.TelemetryReader, entity parsing.Entity) (*telemetrypb.TelemetryEntity, error) {
+	if entity == nil {
 		return &telemetrypb.TelemetryEntity{}, errors.New("protobuf conversion: encountered nil entity")
 	}
 
 	entityID := tr.StrAttrib(attrib.ExplorVizAttributes.EntityID.Key)
 	telemetryKey := tr.StrAttrib(attrib.ExplorVizAttributes.TelemetryKey.Key)
 
-	s := telemetrypb.TelemetryEntity{
+	te := telemetrypb.TelemetryEntity{
 		LandscapeTokenId:     tr.LandscapeTokenID(),
 		LandscapeTokenSecret: tr.LandscapeTokenSecret(),
 
 		GitCommitHash: strOrNil(tr.GitCommitHash()),
 	}
 
-	switch e := se.(type) {
+	switch e := entity.(type) {
 	case parsing.CodeEntity:
 		appName := tr.ResourceStrAttrib(semconv.ServiceNameKey)
 		if appName == "" {
 			appName = attrib.FallbackValues.ServiceName
 		}
 
-		s.EntityDescriptor = &telemetrypb.TelemetryEntity_CodeDescriptor{
+		te.EntityDescriptor = &telemetrypb.TelemetryEntity_CodeDescriptor{
 			CodeDescriptor: &telemetrypb.CodeDescriptor{
 				ApplicationName: appName,
 
-				FileId:   telemetryKey,
-				FilePath: e.FilePath,
+				FileTelemetryKey: telemetryKey,
+				FilePath:         e.FilePath,
 
-				FunctionId:   entityID,
-				FunctionName: e.FuncName,
+				FunctionTelemetryKey: entityID,
+				FunctionName:         e.FuncName,
 
 				ClassName: strOrNil(e.ClassName),
 				Language:  strOrNil(e.Language),
+			},
+		}
+	case parsing.GenericServiceEntity:
+		te.EntityDescriptor = &telemetrypb.TelemetryEntity_GenericServiceDescriptor{
+			GenericServiceDescriptor: &telemetrypb.GenericServiceDescriptor{
+				ServiceTelemetryKey: telemetryKey,
+				ServiceName:         e.ServiceName,
 			},
 		}
 	default:
 		return &telemetrypb.TelemetryEntity{}, fmt.Errorf("protobuf conversion: encountered unhandled entity type")
 	}
 
-	return &s, nil
+	return &te, nil
 }
 
 func strOrNil(s string) *string {

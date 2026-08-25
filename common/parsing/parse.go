@@ -62,6 +62,7 @@ func (invalidEntity) ToAttributes(_ *pcommon.Map) {
 
 var parserChain = []TelemetryParser{
 	ParseCodeTelemetry,
+	ParseGenericServiceTelemetry,
 }
 
 // ParseTelemetry applies a series of parsing functions to the given [attrib.TelemetryReader]
@@ -97,6 +98,8 @@ func FromAttributes(m pcommon.Map) (Entity, error) {
 	switch entityType.Str() {
 	case CodeEntityType:
 		se, err = codeEntityFromAttribs(m)
+	case GenericServiceEntityType:
+		se, err = genericServiceEntityFromAttribs(m)
 	default:
 		return invalidEntity{}, fmt.Errorf(`failed to initialize entity from attributes, unknown value "%s" for entity type`, entityType.Str())
 	}

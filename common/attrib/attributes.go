@@ -24,6 +24,8 @@ var ExplorVizAttributes = struct {
 	EntityType   ExplorVizAttribute // Indicates the kind of entity extracted, e.g. "function" or "database".
 	TelemetryKey ExplorVizAttribute // Identifier / lookup key of the visualization object to which this telemetry belongs, e.g. building
 
+	ServiceName ExplorVizAttribute
+
 	CodeFileID       ExplorVizAttribute
 	CodeFilePath     ExplorVizAttribute
 	CodeFunctionName ExplorVizAttribute
@@ -36,6 +38,8 @@ var ExplorVizAttributes = struct {
 	EntityID:     ExplorVizAttribute{Key: "explorviz.entity.id", DefaultValue: pcommon.NewValueStr("unknown-entity-id")},
 	EntityType:   ExplorVizAttribute{Key: "explorviz.entity.type", DefaultValue: pcommon.NewValueStr("unknown-entity-type")},
 	TelemetryKey: ExplorVizAttribute{Key: "explorviz.entity.telemetrykey", DefaultValue: pcommon.NewValueStr("unknown-telemetry-key")},
+
+	ServiceName: ExplorVizAttribute{Key: "explorviz.service.name", DefaultValue: pcommon.NewValueStr("unknown-service-name")},
 
 	CodeFileID:       ExplorVizAttribute{Key: "explorviz.code.file.id", DefaultValue: pcommon.NewValueStr("unknown-file-id")},
 	CodeFilePath:     ExplorVizAttribute{Key: "explorviz.code.file.path", DefaultValue: pcommon.NewValueStr("unknown-file-path")},
