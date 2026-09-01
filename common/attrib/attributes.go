@@ -35,6 +35,9 @@ var ExplorVizAttributes = struct {
 	RPCServiceName ExplorVizAttribute
 	RPCMethodName  ExplorVizAttribute
 	RPCSystemName  ExplorVizAttribute
+
+	HTTPRoute  ExplorVizAttribute
+	HTTPMethod ExplorVizAttribute
 }{
 	LandscapeTokenID:     ExplorVizAttribute{Key: "explorviz.token.id", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
 	LandscapeTokenSecret: ExplorVizAttribute{Key: "explorviz.token.secret", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
@@ -54,6 +57,9 @@ var ExplorVizAttributes = struct {
 	RPCServiceName: ExplorVizAttribute{Key: "explorviz.rpc.service", DefaultValue: pcommon.NewValueStr("unknown-rpc-service")},
 	RPCMethodName:  ExplorVizAttribute{Key: "explorviz.rpc.method", DefaultValue: pcommon.NewValueStr("unknown-rpc-method")},
 	RPCSystemName:  ExplorVizAttribute{Key: "explorviz.rpc.system", DefaultValue: pcommon.NewValueStr("unknown-rpc-system")},
+
+	HTTPRoute:  ExplorVizAttribute{Key: "explorviz.http.route", DefaultValue: pcommon.NewValueStr("/unknown-route")},
+	HTTPMethod: ExplorVizAttribute{Key: "explorviz.http.method", DefaultValue: pcommon.NewValueStr("unknown-method")},
 }
 
 // FallbackValues provides values for (non-ExplorViz specific) OTel attributes to use if the attribute is not provided within incoming telemetry.
