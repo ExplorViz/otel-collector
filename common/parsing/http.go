@@ -82,6 +82,10 @@ func ParseHTTPTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 	}
 
 	method := tr.StrAttrib(semconv.HTTPRequestMethodKey)
+	if method == "" {
+		// Use deprecated attribute key as fallback
+		method = tr.StrAttrib("http.method")
+	}
 
 	return HTTPEntity{
 		ServiceName: service,
