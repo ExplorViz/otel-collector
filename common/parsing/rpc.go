@@ -108,8 +108,15 @@ func ParseRPCTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 		// Example of the method fqn format: "oteldemo.ProductCatalogService/GetProduct"
 		methodFqn := tr.StrAttrib(semconv.RPCMethodKey)
 		if methodFqn == "" {
+			// Attempt to use gRPC's own semantic conventions as a fallback.
+			// See https://grpc.io/docs/guides/opentelemetry-metrics/
+			methodFqn = tr.StrAttrib("grpc.method")
+		}
+		if methodFqn == "" {
 			return RPCEntity{}, errors.New("rpc parser: empty or missing method name attribute")
 		}
+		// Some of the method attribute values in the OTel Demo start with "/" for some reason
+		methodFqn = strings.TrimPrefix(methodFqn, "/")
 		if strings.Count(methodFqn, "/") > 1 {
 			return RPCEntity{}, fmt.Errorf("rpc parser: unknown method fqn format %s", methodFqn)
 		}
