@@ -50,7 +50,7 @@ func genericServiceEntityFromAttribs(m pcommon.Map) (GenericServiceEntity, error
 func ParseGenericServiceTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 	name := tr.ResourceStrAttrib(semconv.ServiceNameKey)
 	if name == "" {
-		return &GenericServiceEntity{}, errors.New("generic service parser: empty or missing service name attribute")
+		return GenericServiceEntity{}, errors.New("generic service parser: empty or missing service name attribute")
 	}
 
 	return GenericServiceEntity{ServiceName: name}, nil

@@ -31,6 +31,10 @@ var ExplorVizAttributes = struct {
 	CodeFunctionName ExplorVizAttribute
 	CodeClassName    ExplorVizAttribute
 	CodeLanguage     ExplorVizAttribute
+
+	RPCServiceName ExplorVizAttribute
+	RPCMethodName  ExplorVizAttribute
+	RPCSystemName  ExplorVizAttribute
 }{
 	LandscapeTokenID:     ExplorVizAttribute{Key: "explorviz.token.id", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
 	LandscapeTokenSecret: ExplorVizAttribute{Key: "explorviz.token.secret", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
@@ -46,6 +50,10 @@ var ExplorVizAttributes = struct {
 	CodeFunctionName: ExplorVizAttribute{Key: "explorviz.code.function.name", DefaultValue: pcommon.NewValueStr("unknown-function-name")},
 	CodeClassName:    ExplorVizAttribute{Key: "explorviz.code.class.name", DefaultValue: pcommon.NewValueStr("unknown-class-name")},
 	CodeLanguage:     ExplorVizAttribute{Key: "explorviz.code.language", DefaultValue: pcommon.NewValueStr("")},
+
+	RPCServiceName: ExplorVizAttribute{Key: "explorviz.rpc.service", DefaultValue: pcommon.NewValueStr("unknown-rpc-service")},
+	RPCMethodName:  ExplorVizAttribute{Key: "explorviz.rpc.method", DefaultValue: pcommon.NewValueStr("unknown-rpc-method")},
+	RPCSystemName:  ExplorVizAttribute{Key: "explorviz.rpc.system", DefaultValue: pcommon.NewValueStr("unknown-rpc-system")},
 }
 
 // FallbackValues provides values for (non-ExplorViz specific) OTel attributes to use if the attribute is not provided within incoming telemetry.

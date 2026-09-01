@@ -36,6 +36,7 @@ type TelemetryEntity struct {
 	//
 	//	*TelemetryEntity_GenericServiceDescriptor
 	//	*TelemetryEntity_CodeDescriptor
+	//	*TelemetryEntity_RpcDescriptor
 	EntityDescriptor isTelemetryEntity_EntityDescriptor `protobuf_oneof:"entity_descriptor"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -124,6 +125,15 @@ func (x *TelemetryEntity) GetCodeDescriptor() *CodeDescriptor {
 	return nil
 }
 
+func (x *TelemetryEntity) GetRpcDescriptor() *RpcDescriptor {
+	if x != nil {
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_RpcDescriptor); ok {
+			return x.RpcDescriptor
+		}
+	}
+	return nil
+}
+
 type isTelemetryEntity_EntityDescriptor interface {
 	isTelemetryEntity_EntityDescriptor()
 }
@@ -136,9 +146,15 @@ type TelemetryEntity_CodeDescriptor struct {
 	CodeDescriptor *CodeDescriptor `protobuf:"bytes,6,opt,name=code_descriptor,json=codeDescriptor,proto3,oneof"`
 }
 
+type TelemetryEntity_RpcDescriptor struct {
+	RpcDescriptor *RpcDescriptor `protobuf:"bytes,7,opt,name=rpc_descriptor,json=rpcDescriptor,proto3,oneof"`
+}
+
 func (*TelemetryEntity_GenericServiceDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 func (*TelemetryEntity_CodeDescriptor) isTelemetryEntity_EntityDescriptor() {}
+
+func (*TelemetryEntity_RpcDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 // *
 // GenericServiceDescriptor describes a service for which no entity information
@@ -289,18 +305,105 @@ func (x *CodeDescriptor) GetLanguage() string {
 	return ""
 }
 
+// *
+// RpcDescriptor describes a method within a remote procedure call service (e.g. gRPC).
+type RpcDescriptor struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	ApplicationName     string                 `protobuf:"bytes,1,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`               // Name of the application or service hosting the RPC server
+	ServiceTelemetryKey string                 `protobuf:"bytes,2,opt,name=service_telemetry_key,json=serviceTelemetryKey,proto3" json:"service_telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this RPC service
+	ServiceName         string                 `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`                           // Fully-qualified name of the RPC service, separated by "."
+	MethodTelemetryKey  string                 `protobuf:"bytes,4,opt,name=method_telemetry_key,json=methodTelemetryKey,proto3" json:"method_telemetry_key,omitempty"`    // Lookup key for retrieving telemetry for this RPC method
+	MethodName          string                 `protobuf:"bytes,5,opt,name=method_name,json=methodName,proto3" json:"method_name,omitempty"`                              // Name of the RPC method (unqualified) as provided in the service definition
+	SystemName          *string                `protobuf:"bytes,6,opt,name=system_name,json=systemName,proto3,oneof" json:"system_name,omitempty"`                        // Name of the used RPC system, e.g. "grpc", "dubbo"
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *RpcDescriptor) Reset() {
+	*x = RpcDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RpcDescriptor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RpcDescriptor) ProtoMessage() {}
+
+func (x *RpcDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RpcDescriptor.ProtoReflect.Descriptor instead.
+func (*RpcDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RpcDescriptor) GetApplicationName() string {
+	if x != nil {
+		return x.ApplicationName
+	}
+	return ""
+}
+
+func (x *RpcDescriptor) GetServiceTelemetryKey() string {
+	if x != nil {
+		return x.ServiceTelemetryKey
+	}
+	return ""
+}
+
+func (x *RpcDescriptor) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *RpcDescriptor) GetMethodTelemetryKey() string {
+	if x != nil {
+		return x.MethodTelemetryKey
+	}
+	return ""
+}
+
+func (x *RpcDescriptor) GetMethodName() string {
+	if x != nil {
+		return x.MethodName
+	}
+	return ""
+}
+
+func (x *RpcDescriptor) GetSystemName() string {
+	if x != nil && x.SystemName != nil {
+		return *x.SystemName
+	}
+	return ""
+}
+
 var File_telemetry_entity_proto protoreflect.FileDescriptor
 
 const file_telemetry_entity_proto_rawDesc = "" +
 	"\n" +
-	"\x16telemetry_entity.proto\"\x97\x03\n" +
+	"\x16telemetry_entity.proto\"\xd0\x03\n" +
 	"\x0fTelemetryEntity\x12,\n" +
 	"\x12landscape_token_id\x18\x01 \x01(\tR\x10landscapeTokenId\x124\n" +
 	"\x16landscape_token_secret\x18\x02 \x01(\tR\x14landscapeTokenSecret\x123\n" +
 	"\x15instrumentation_scope\x18\x03 \x01(\tR\x14instrumentationScope\x12+\n" +
 	"\x0fgit_commit_hash\x18\x04 \x01(\tH\x01R\rgitCommitHash\x88\x01\x01\x12Y\n" +
 	"\x1ageneric_service_descriptor\x18\x05 \x01(\v2\x19.GenericServiceDescriptorH\x00R\x18genericServiceDescriptor\x12:\n" +
-	"\x0fcode_descriptor\x18\x06 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptorB\x13\n" +
+	"\x0fcode_descriptor\x18\x06 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptor\x127\n" +
+	"\x0erpc_descriptor\x18\a \x01(\v2\x0e.RpcDescriptorH\x00R\rrpcDescriptorB\x13\n" +
 	"\x11entity_descriptorB\x12\n" +
 	"\x10_git_commit_hash\"q\n" +
 	"\x18GenericServiceDescriptor\x122\n" +
@@ -316,7 +419,17 @@ const file_telemetry_entity_proto_rawDesc = "" +
 	"class_name\x18\x06 \x01(\tH\x00R\tclassName\x88\x01\x01\x12\x1f\n" +
 	"\blanguage\x18\a \x01(\tH\x01R\blanguage\x88\x01\x01B\r\n" +
 	"\v_class_nameB\v\n" +
-	"\t_languageBAZ?github.com/ExplorViz/otel-collector/common/genproto/telemetrypbb\x06proto3"
+	"\t_language\"\x9a\x02\n" +
+	"\rRpcDescriptor\x12)\n" +
+	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x122\n" +
+	"\x15service_telemetry_key\x18\x02 \x01(\tR\x13serviceTelemetryKey\x12!\n" +
+	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x120\n" +
+	"\x14method_telemetry_key\x18\x04 \x01(\tR\x12methodTelemetryKey\x12\x1f\n" +
+	"\vmethod_name\x18\x05 \x01(\tR\n" +
+	"methodName\x12$\n" +
+	"\vsystem_name\x18\x06 \x01(\tH\x00R\n" +
+	"systemName\x88\x01\x01B\x0e\n" +
+	"\f_system_nameBAZ?github.com/ExplorViz/otel-collector/common/genproto/telemetrypbb\x06proto3"
 
 var (
 	file_telemetry_entity_proto_rawDescOnce sync.Once
@@ -330,20 +443,22 @@ func file_telemetry_entity_proto_rawDescGZIP() []byte {
 	return file_telemetry_entity_proto_rawDescData
 }
 
-var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_telemetry_entity_proto_goTypes = []any{
 	(*TelemetryEntity)(nil),          // 0: TelemetryEntity
 	(*GenericServiceDescriptor)(nil), // 1: GenericServiceDescriptor
 	(*CodeDescriptor)(nil),           // 2: CodeDescriptor
+	(*RpcDescriptor)(nil),            // 3: RpcDescriptor
 }
 var file_telemetry_entity_proto_depIdxs = []int32{
 	1, // 0: TelemetryEntity.generic_service_descriptor:type_name -> GenericServiceDescriptor
 	2, // 1: TelemetryEntity.code_descriptor:type_name -> CodeDescriptor
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 2: TelemetryEntity.rpc_descriptor:type_name -> RpcDescriptor
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_telemetry_entity_proto_init() }
@@ -354,15 +469,17 @@ func file_telemetry_entity_proto_init() {
 	file_telemetry_entity_proto_msgTypes[0].OneofWrappers = []any{
 		(*TelemetryEntity_GenericServiceDescriptor)(nil),
 		(*TelemetryEntity_CodeDescriptor)(nil),
+		(*TelemetryEntity_RpcDescriptor)(nil),
 	}
 	file_telemetry_entity_proto_msgTypes[2].OneofWrappers = []any{}
+	file_telemetry_entity_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_telemetry_entity_proto_rawDesc), len(file_telemetry_entity_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

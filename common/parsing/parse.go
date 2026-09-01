@@ -62,6 +62,7 @@ func (invalidEntity) ToAttributes(_ *pcommon.Map) {
 
 var parserChain = []TelemetryParser{
 	ParseCodeTelemetry,
+	ParseRPCTelemetry,
 	ParseGenericServiceTelemetry,
 }
 
@@ -98,6 +99,8 @@ func FromAttributes(m pcommon.Map) (Entity, error) {
 	switch entityType.Str() {
 	case CodeEntityType:
 		se, err = codeEntityFromAttribs(m)
+	case RPCEntityType:
+		se, err = rpcEntityFromAttribs(m)
 	case GenericServiceEntityType:
 		se, err = genericServiceEntityFromAttribs(m)
 	default:

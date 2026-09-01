@@ -53,12 +53,12 @@ func (c CodeEntity) ToAttributes(attrs *pcommon.Map) {
 func codeEntityFromAttribs(m pcommon.Map) (CodeEntity, error) {
 	filePath, ok := m.Get(string(attrib.ExplorVizAttributes.CodeFilePath.Key))
 	if !ok || filePath.Str() == "" {
-		return CodeEntity{}, errors.New(`empty or missing string attribute for file path`)
+		return CodeEntity{}, errors.New("empty or missing string attribute for file path")
 	}
 
 	funcName, ok := m.Get(string(attrib.ExplorVizAttributes.CodeFunctionName.Key))
 	if !ok || funcName.Str() == "" {
-		return CodeEntity{}, errors.New(`empty or missing string attribute for function name`)
+		return CodeEntity{}, errors.New("empty or missing string attribute for function name")
 	}
 
 	className, _ := m.Get(string(attrib.ExplorVizAttributes.CodeClassName.Key))
@@ -84,7 +84,7 @@ func codeEntityFromAttribs(m pcommon.Map) (CodeEntity, error) {
 func ParseCodeTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 	fqn := tr.StrAttrib(semconv.CodeFunctionNameKey)
 	if fqn == "" {
-		return &CodeEntity{}, errors.New("code parser: empty or missing function name attribute")
+		return CodeEntity{}, errors.New("code parser: empty or missing function name attribute")
 	}
 
 	lang := tr.StrAttrib(semconv.TelemetrySDKLanguageKey)
@@ -92,7 +92,7 @@ func ParseCodeTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 	parsedFQN := ParseFunctionFQN(fqn, lang)
 
 	if parsedFQN.FuncName == "" {
-		return &CodeEntity{}, errors.New("code parser: function name could not be extracted")
+		return CodeEntity{}, errors.New("code parser: function name could not be extracted")
 	}
 
 	filePath := cmp.Or(parsedFQN.FilePath, tr.StrAttrib(semconv.CodeFilePathKey))
