@@ -21,11 +21,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// TelemetryEntity describes runtime structure data derived from OpenTelemetry stream analysis.
 type TelemetryEntity struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	LandscapeTokenId     string                 `protobuf:"bytes,1,opt,name=landscape_token_id,json=landscapeTokenId,proto3" json:"landscape_token_id,omitempty"`
 	LandscapeTokenSecret string                 `protobuf:"bytes,2,opt,name=landscape_token_secret,json=landscapeTokenSecret,proto3" json:"landscape_token_secret,omitempty"`
-	GitCommitHash        *string                `protobuf:"bytes,3,opt,name=git_commit_hash,json=gitCommitHash,proto3,oneof" json:"git_commit_hash,omitempty"`
+	// Name of the OpenTelemetry instrumentation scope to which this entity's telemetry belongs.
+	// See https://opentelemetry.io/docs/concepts/instrumentation-scope/
+	InstrumentationScope string  `protobuf:"bytes,3,opt,name=instrumentation_scope,json=instrumentationScope,proto3" json:"instrumentation_scope,omitempty"`
+	GitCommitHash        *string `protobuf:"bytes,4,opt,name=git_commit_hash,json=gitCommitHash,proto3,oneof" json:"git_commit_hash,omitempty"`
+	// Specifies details depending on the type of entity this message represents
+	//
 	// Types that are valid to be assigned to EntityDescriptor:
 	//
 	//	*TelemetryEntity_GenericServiceDescriptor
@@ -79,6 +85,13 @@ func (x *TelemetryEntity) GetLandscapeTokenSecret() string {
 	return ""
 }
 
+func (x *TelemetryEntity) GetInstrumentationScope() string {
+	if x != nil {
+		return x.InstrumentationScope
+	}
+	return ""
+}
+
 func (x *TelemetryEntity) GetGitCommitHash() string {
 	if x != nil && x.GitCommitHash != nil {
 		return *x.GitCommitHash
@@ -116,11 +129,11 @@ type isTelemetryEntity_EntityDescriptor interface {
 }
 
 type TelemetryEntity_GenericServiceDescriptor struct {
-	GenericServiceDescriptor *GenericServiceDescriptor `protobuf:"bytes,4,opt,name=generic_service_descriptor,json=genericServiceDescriptor,proto3,oneof"`
+	GenericServiceDescriptor *GenericServiceDescriptor `protobuf:"bytes,5,opt,name=generic_service_descriptor,json=genericServiceDescriptor,proto3,oneof"`
 }
 
 type TelemetryEntity_CodeDescriptor struct {
-	CodeDescriptor *CodeDescriptor `protobuf:"bytes,5,opt,name=code_descriptor,json=codeDescriptor,proto3,oneof"`
+	CodeDescriptor *CodeDescriptor `protobuf:"bytes,6,opt,name=code_descriptor,json=codeDescriptor,proto3,oneof"`
 }
 
 func (*TelemetryEntity_GenericServiceDescriptor) isTelemetryEntity_EntityDescriptor() {}
@@ -192,7 +205,7 @@ type CodeDescriptor struct {
 	FunctionTelemetryKey string                 `protobuf:"bytes,4,opt,name=function_telemetry_key,json=functionTelemetryKey,proto3" json:"function_telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this function
 	FunctionName         string                 `protobuf:"bytes,5,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`                           // Name of the function, excluding signature
 	ClassName            *string                `protobuf:"bytes,6,opt,name=class_name,json=className,proto3,oneof" json:"class_name,omitempty"`                              // Inner classes may be separated by "."
-	Language             *string                `protobuf:"bytes,7,opt,name=language,proto3,oneof" json:"language,omitempty"`
+	Language             *string                `protobuf:"bytes,7,opt,name=language,proto3,oneof" json:"language,omitempty"`                                                 // Programming language, e.g. "java"
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -280,13 +293,14 @@ var File_telemetry_entity_proto protoreflect.FileDescriptor
 
 const file_telemetry_entity_proto_rawDesc = "" +
 	"\n" +
-	"\x16telemetry_entity.proto\"\xe2\x02\n" +
+	"\x16telemetry_entity.proto\"\x97\x03\n" +
 	"\x0fTelemetryEntity\x12,\n" +
 	"\x12landscape_token_id\x18\x01 \x01(\tR\x10landscapeTokenId\x124\n" +
-	"\x16landscape_token_secret\x18\x02 \x01(\tR\x14landscapeTokenSecret\x12+\n" +
-	"\x0fgit_commit_hash\x18\x03 \x01(\tH\x01R\rgitCommitHash\x88\x01\x01\x12Y\n" +
-	"\x1ageneric_service_descriptor\x18\x04 \x01(\v2\x19.GenericServiceDescriptorH\x00R\x18genericServiceDescriptor\x12:\n" +
-	"\x0fcode_descriptor\x18\x05 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptorB\x13\n" +
+	"\x16landscape_token_secret\x18\x02 \x01(\tR\x14landscapeTokenSecret\x123\n" +
+	"\x15instrumentation_scope\x18\x03 \x01(\tR\x14instrumentationScope\x12+\n" +
+	"\x0fgit_commit_hash\x18\x04 \x01(\tH\x01R\rgitCommitHash\x88\x01\x01\x12Y\n" +
+	"\x1ageneric_service_descriptor\x18\x05 \x01(\v2\x19.GenericServiceDescriptorH\x00R\x18genericServiceDescriptor\x12:\n" +
+	"\x0fcode_descriptor\x18\x06 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptorB\x13\n" +
 	"\x11entity_descriptorB\x12\n" +
 	"\x10_git_commit_hash\"q\n" +
 	"\x18GenericServiceDescriptor\x122\n" +

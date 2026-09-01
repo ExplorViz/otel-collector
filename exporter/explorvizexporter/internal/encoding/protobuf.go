@@ -23,6 +23,8 @@ func ToProtobuf(tr attrib.TelemetryReader, entity parsing.Entity) (*telemetrypb.
 		LandscapeTokenId:     tr.LandscapeTokenID(),
 		LandscapeTokenSecret: tr.LandscapeTokenSecret(),
 
+		InstrumentationScope: tr.Scope.Name(),
+
 		GitCommitHash: strOrNil(tr.GitCommitHash()),
 	}
 
