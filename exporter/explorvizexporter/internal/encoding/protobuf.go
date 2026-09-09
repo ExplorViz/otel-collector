@@ -53,17 +53,18 @@ func ToProtobuf(tr attrib.TelemetryReader, entity parsing.Entity) (*telemetrypb.
 		te.EntityDescriptor = &telemetrypb.TelemetryEntity_RpcDescriptor{
 			RpcDescriptor: &telemetrypb.RpcDescriptor{
 				ApplicationName:     e.ApplicationName,
-				ServiceTelemetryKey: e.TelemetryKey(),
+				ServiceTelemetryKey: telemetryKey,
 				ServiceName:         e.ServiceName,
-				MethodTelemetryKey:  e.ID(),
-				SystemName:          &e.SystemName,
+				MethodName:          e.MethodName,
+				MethodTelemetryKey:  entityID,
+				SystemName:          strOrNil(e.SystemName),
 			},
 		}
 	case parsing.HTTPEntity:
 		te.EntityDescriptor = &telemetrypb.TelemetryEntity_HttpDescriptor{
 			HttpDescriptor: &telemetrypb.HttpDescriptor{
 				ApplicationName: e.ServiceName,
-				TelemetryKey:    e.TelemetryKey(),
+				TelemetryKey:    telemetryKey,
 				Route:           e.Route,
 				Method:          e.Method,
 			},
