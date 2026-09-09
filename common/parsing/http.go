@@ -56,8 +56,9 @@ func httpEntityFromAttribs(m pcommon.Map) (HTTPEntity, error) {
 	method, _ := m.Get(string(attrib.ExplorVizAttributes.HTTPMethod.Key))
 
 	return HTTPEntity{
-		Route:  route.Str(),
-		Method: method.Str(),
+		ServiceName: service.Str(),
+		Route:       route.Str(),
+		Method:      method.Str(),
 	}, nil
 }
 
