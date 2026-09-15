@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"fmt"
+	"strings"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
@@ -87,7 +88,13 @@ func ParseCodeTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 		return CodeEntity{}, errors.New("code parser: empty or missing function name attribute")
 	}
 
-	lang := tr.StrAttrib(semconv.TelemetrySDKLanguageKey)
+	lang := tr.ResourceStrAttrib(semconv.TelemetrySDKLanguageKey)
+	if lang == "" {
+		lang = tr.StrAttrib(semconv.TelemetrySDKLanguageKey)
+		if lang == "" {
+			lang, _ = langFromFilePath(tr.StrAttrib(semconv.CodeFilePathKey))
+		}
+	}
 
 	parsedFQN := ParseFunctionFQN(fqn, lang)
 
@@ -107,4 +114,32 @@ func ParseCodeTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 		ClassName: parsedFQN.ClassName,
 		Language:  lang,
 	}, nil
+}
+
+func langFromFilePath(path string) (string, error) {
+	lastIndex := strings.LastIndex(path, ".")
+	if lastIndex == -1 {
+		return "", errors.New("file path does not seem to contain file extension")
+	}
+	ext := path[lastIndex:]
+	lang, ok := extensionToLang[ext]
+	if !ok {
+		// Return the file extension as a fallback
+		return path[lastIndex+1:], nil
+	}
+	return lang, nil
+}
+
+var extensionToLang = map[string]string{
+	".c":    "c",
+	".cpp":  "cpp",
+	".cs":   "csharp",
+	".go":   "go",
+	".java": "java",
+	".js":   "javascript",
+	".kt":   "kotlin",
+	".py":   "python",
+	".php":  "php",
+	".rs":   "rust",
+	".ts":   "typescript",
 }
