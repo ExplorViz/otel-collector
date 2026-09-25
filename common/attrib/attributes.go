@@ -25,6 +25,7 @@ var ExplorVizAttributes = struct {
 	TelemetryKey ExplorVizAttribute // Identifier / lookup key of the visualization object to which this telemetry belongs, e.g. building
 
 	ServiceName ExplorVizAttribute
+	ScopeName   ExplorVizAttribute
 
 	CodeFileID       ExplorVizAttribute
 	CodeFilePath     ExplorVizAttribute
@@ -47,6 +48,7 @@ var ExplorVizAttributes = struct {
 	TelemetryKey: ExplorVizAttribute{Key: "explorviz.entity.telemetrykey", DefaultValue: pcommon.NewValueStr("unknown-telemetry-key")},
 
 	ServiceName: ExplorVizAttribute{Key: "explorviz.service.name", DefaultValue: pcommon.NewValueStr("unknown-service-name")},
+	ScopeName:   ExplorVizAttribute{Key: "explorviz.scope.name", DefaultValue: pcommon.NewValueStr("unknown-scope-name")},
 
 	CodeFileID:       ExplorVizAttribute{Key: "explorviz.code.file.id", DefaultValue: pcommon.NewValueStr("unknown-file-id")},
 	CodeFilePath:     ExplorVizAttribute{Key: "explorviz.code.file.path", DefaultValue: pcommon.NewValueStr("unknown-file-path")},

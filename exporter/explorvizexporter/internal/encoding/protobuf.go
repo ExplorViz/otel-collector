@@ -69,7 +69,7 @@ func ToProtobuf(tr attrib.TelemetryReader, entity parsing.Entity) (*telemetrypb.
 				Method:          e.Method,
 			},
 		}
-	case parsing.GenericServiceEntity:
+	case parsing.GenericEntity:
 		te.EntityDescriptor = &telemetrypb.TelemetryEntity_GenericServiceDescriptor{
 			GenericServiceDescriptor: &telemetrypb.GenericServiceDescriptor{
 				ServiceTelemetryKey: telemetryKey,
