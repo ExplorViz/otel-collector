@@ -85,7 +85,8 @@ loop:
 				default:
 				}
 
-				attrs := ss.Spans().At(k).Attributes()
+				span := ss.Spans().At(k)
+				attrs := span.Attributes()
 				scope := ss.Scope()
 				res := rs.Resource()
 
@@ -95,7 +96,12 @@ loop:
 					continue
 				}
 
-				tr := attrib.TelemetryReader{Attrs: &attrs, Scope: &scope, Resource: &res}
+				tr := attrib.TelemetryReader{
+					Attrs:    &attrs,
+					Scope:    &scope,
+					Resource: &res,
+					Span:     &span,
+				}
 
 				pb, err := encoding.ToProtobuf(tr, entity)
 				if err != nil {
@@ -196,7 +202,8 @@ loop:
 				default:
 				}
 
-				attrs := sl.LogRecords().At(k).Attributes()
+				log := sl.LogRecords().At(k)
+				attrs := log.Attributes()
 				scope := sl.Scope()
 				res := rl.Resource()
 
@@ -206,7 +213,12 @@ loop:
 					continue
 				}
 
-				tr := attrib.TelemetryReader{Attrs: &attrs, Scope: &scope, Resource: &res}
+				tr := attrib.TelemetryReader{
+					Attrs:    &attrs,
+					Scope:    &scope,
+					Resource: &res,
+					Log:      &log,
+				}
 
 				pb, err := encoding.ToProtobuf(tr, entity)
 				if err != nil {

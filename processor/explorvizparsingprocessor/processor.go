@@ -63,14 +63,15 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 			ss := rs.ScopeSpans().At(j)
 			for k := 0; k < ss.Spans().Len(); k++ {
 				span := ss.Spans().At(k)
+				attrs := span.Attributes()
 				scope := ss.Scope()
 				res := rs.Resource()
 
-				attrs := span.Attributes()
 				tr := attrib.TelemetryReader{
 					Attrs:    &attrs,
 					Scope:    &scope,
 					Resource: &res,
+					Span:     &span,
 				}
 
 				if err := p.validate(tr); err != nil {
@@ -118,14 +119,15 @@ func (p *parsingProcessor) processLogs(ctx context.Context, ld plog.Logs) (plog.
 			sl := rl.ScopeLogs().At(j)
 			for k := 0; k < sl.LogRecords().Len(); k++ {
 				log := sl.LogRecords().At(k)
+				attrs := log.Attributes()
 				scope := sl.Scope()
 				res := rl.Resource()
 
-				attrs := log.Attributes()
 				tr := attrib.TelemetryReader{
 					Attrs:    &attrs,
 					Scope:    &scope,
 					Resource: &res,
+					Log:      &log,
 				}
 
 				if err := p.validate(tr); err != nil {

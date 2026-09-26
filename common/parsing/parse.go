@@ -100,10 +100,14 @@ func FromAttributes(m pcommon.Map) (Entity, error) {
 	switch entityType.Str() {
 	case CodeEntityType:
 		se, err = codeEntityFromAttribs(m)
-	case RPCEntityType:
-		se, err = rpcEntityFromAttribs(m)
-	case HTTPEntityType:
-		se, err = httpEntityFromAttribs(m)
+	case RPCServerEntityType:
+		se, err = rpcServerEntityFromAttribs(m)
+	case RPCClientEntityType:
+		se, err = rpcClientEntityFromAttribs(m)
+	case HTTPServerEntityType:
+		se, err = httpServerEntityFromAttribs(m)
+	case HTTPClientEntityType:
+		se, err = httpClientEntityFromAttribs(m)
 	case GenericEntityType:
 		se, err = genericEntityFromAttribs(m)
 	default:

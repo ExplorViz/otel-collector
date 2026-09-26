@@ -49,9 +49,9 @@ func ToProtobuf(tr attrib.TelemetryReader, entity parsing.Entity) (*telemetrypb.
 				Language:  strOrNil(e.Language),
 			},
 		}
-	case parsing.RPCEntity:
-		te.EntityDescriptor = &telemetrypb.TelemetryEntity_RpcDescriptor{
-			RpcDescriptor: &telemetrypb.RpcDescriptor{
+	case parsing.RPCServerEntity:
+		te.EntityDescriptor = &telemetrypb.TelemetryEntity_RpcServerDescriptor{
+			RpcServerDescriptor: &telemetrypb.RpcServerDescriptor{
 				ApplicationName:     e.ApplicationName,
 				ServiceTelemetryKey: telemetryKey,
 				ServiceName:         e.ServiceName,
@@ -60,20 +60,35 @@ func ToProtobuf(tr attrib.TelemetryReader, entity parsing.Entity) (*telemetrypb.
 				SystemName:          strOrNil(e.SystemName),
 			},
 		}
-	case parsing.HTTPEntity:
-		te.EntityDescriptor = &telemetrypb.TelemetryEntity_HttpDescriptor{
-			HttpDescriptor: &telemetrypb.HttpDescriptor{
+	case parsing.RPCClientEntity:
+		te.EntityDescriptor = &telemetrypb.TelemetryEntity_RpcClientDescriptor{
+			RpcClientDescriptor: &telemetrypb.RpcClientDescriptor{
+				ApplicationName: e.ApplicationName,
+				TelemetryKey:    telemetryKey,
+				SystemName:      strOrNil(e.SystemName),
+			},
+		}
+	case parsing.HTTPServerEntity:
+		te.EntityDescriptor = &telemetrypb.TelemetryEntity_HttpServerDescriptor{
+			HttpServerDescriptor: &telemetrypb.HttpServerDescriptor{
 				ApplicationName: e.ServiceName,
 				TelemetryKey:    telemetryKey,
 				Route:           e.Route,
 				Method:          e.Method,
 			},
 		}
+	case parsing.HTTPClientEntity:
+		te.EntityDescriptor = &telemetrypb.TelemetryEntity_HttpClientDescriptor{
+			HttpClientDescriptor: &telemetrypb.HttpClientDescriptor{
+				ApplicationName: e.ServiceName,
+				TelemetryKey:    telemetryKey,
+			},
+		}
 	case parsing.GenericEntity:
-		te.EntityDescriptor = &telemetrypb.TelemetryEntity_GenericServiceDescriptor{
-			GenericServiceDescriptor: &telemetrypb.GenericServiceDescriptor{
-				ServiceTelemetryKey: telemetryKey,
-				ServiceName:         e.ServiceName,
+		te.EntityDescriptor = &telemetrypb.TelemetryEntity_GenericEntityDescriptor{
+			GenericEntityDescriptor: &telemetrypb.GenericEntityDescriptor{
+				TelemetryKey: telemetryKey,
+				ServiceName:  e.ServiceName,
 			},
 		}
 	default:
