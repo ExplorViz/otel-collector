@@ -211,7 +211,8 @@ func (*TelemetryEntity_HttpClientDescriptor) isTelemetryEntity_EntityDescriptor(
 type GenericEntityDescriptor struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServiceName   string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	TelemetryKey  string                 `protobuf:"bytes,2,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this entity
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                     // Unqualified variant of the instrumentation scope name
+	TelemetryKey  string                 `protobuf:"bytes,3,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this entity
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -249,6 +250,13 @@ func (*GenericEntityDescriptor) Descriptor() ([]byte, []int) {
 func (x *GenericEntityDescriptor) GetServiceName() string {
 	if x != nil {
 		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *GenericEntityDescriptor) GetName() string {
+	if x != nil {
+		return x.Name
 	}
 	return ""
 }
@@ -646,10 +654,11 @@ const file_telemetry_entity_proto_rawDesc = "" +
 	"\x16http_client_descriptor\x18\n" +
 	" \x01(\v2\x15.HttpClientDescriptorH\x00R\x14httpClientDescriptorB\x13\n" +
 	"\x11entity_descriptorB\x12\n" +
-	"\x10_git_commit_hash\"a\n" +
+	"\x10_git_commit_hash\"u\n" +
 	"\x17GenericEntityDescriptor\x12!\n" +
-	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12#\n" +
-	"\rtelemetry_key\x18\x02 \x01(\tR\ftelemetryKey\"\xc2\x02\n" +
+	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
+	"\rtelemetry_key\x18\x03 \x01(\tR\ftelemetryKey\"\xc2\x02\n" +
 	"\x0eCodeDescriptor\x12)\n" +
 	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12,\n" +
 	"\x12file_telemetry_key\x18\x02 \x01(\tR\x10fileTelemetryKey\x12\x1b\n" +

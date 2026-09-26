@@ -39,6 +39,8 @@ var ExplorVizAttributes = struct {
 
 	HTTPRoute  ExplorVizAttribute
 	HTTPMethod ExplorVizAttribute
+
+	GenericEntityName ExplorVizAttribute
 }{
 	LandscapeTokenID:     ExplorVizAttribute{Key: "explorviz.token.id", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
 	LandscapeTokenSecret: ExplorVizAttribute{Key: "explorviz.token.secret", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
@@ -62,6 +64,8 @@ var ExplorVizAttributes = struct {
 
 	HTTPRoute:  ExplorVizAttribute{Key: "explorviz.http.route", DefaultValue: pcommon.NewValueStr("/unknown-route")},
 	HTTPMethod: ExplorVizAttribute{Key: "explorviz.http.method", DefaultValue: pcommon.NewValueStr("unknown-method")},
+
+	GenericEntityName: ExplorVizAttribute{Key: "explorviz.genericentity.name", DefaultValue: pcommon.NewValueStr("unknown-name")},
 }
 
 // FallbackValues provides values for (non-ExplorViz specific) OTel attributes to use if the attribute is not provided within incoming telemetry.

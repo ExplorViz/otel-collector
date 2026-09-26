@@ -2,6 +2,7 @@ package parsing
 
 import (
 	"errors"
+	"strings"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
@@ -17,6 +18,11 @@ const GenericEntityType string = "generic"
 type GenericEntity struct {
 	ServiceName string
 	ScopeName   string
+
+	// The name of a generic entity is derived from the scope name it belongs to.
+	// If the scope name is qualified using "/" or "::" as a separator, the name
+	// is simplified to only include the portion after the last separator occurrence.
+	Name string
 }
 
 func (gs GenericEntity) ID() string {
@@ -31,6 +37,7 @@ func (gs GenericEntity) ToAttributes(attrs *pcommon.Map) {
 	attrs.PutStr(string(attrib.ExplorVizAttributes.EntityType.Key), GenericEntityType)
 	attrs.PutStr(string(attrib.ExplorVizAttributes.ServiceName.Key), gs.ServiceName)
 	attrs.PutStr(string(attrib.ExplorVizAttributes.ScopeName.Key), gs.ScopeName)
+	attrs.PutStr(string(attrib.ExplorVizAttributes.GenericEntityName.Key), gs.Name)
 }
 
 // genericEntityFromAttribs initializes a new [GenericEntity] based on the entries of the provided map.
@@ -47,7 +54,16 @@ func genericEntityFromAttribs(m pcommon.Map) (GenericEntity, error) {
 		return GenericEntity{}, errors.New("empty or missing string attribute for scope name")
 	}
 
-	return GenericEntity{ServiceName: service.Str(), ScopeName: scope.Str()}, nil
+	name, ok := m.Get(string(attrib.ExplorVizAttributes.GenericEntityName.Key))
+	if !ok || name.Str() == "" {
+		return GenericEntity{}, errors.New("empty or missing string attribute for entity name")
+	}
+
+	return GenericEntity{
+		ServiceName: service.Str(),
+		ScopeName:   scope.Str(),
+		Name:        name.Str(),
+	}, nil
 }
 
 // ParseGenericTelemetry parses telemetry describing some generic entity by looking for attributes conforming
@@ -63,6 +79,45 @@ func ParseGenericTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 	}
 
 	scope := tr.Scope.Name()
+	name := dequalifyScopeName(scope)
 
-	return GenericEntity{ServiceName: service, ScopeName: scope}, nil
+	return GenericEntity{
+		ServiceName: service,
+		ScopeName:   scope,
+		Name:        name,
+	}, nil
+}
+
+func dequalifyScopeName(scopeName string) string {
+	trimmed := scopeName
+	for {
+		var found1, found2 bool
+		trimmed, found1 = strings.CutSuffix(trimmed, "/")
+		trimmed, found2 = strings.CutSuffix(trimmed, "::")
+		if !found1 && !found2 {
+			break
+		}
+	}
+
+	prefixEnd := 0
+	for prefixEnd < len(trimmed) {
+		if strings.HasPrefix(trimmed[prefixEnd:], "/") {
+			prefixEnd += 1
+		} else if strings.HasPrefix(trimmed[prefixEnd:], "::") {
+			prefixEnd += 2
+		} else {
+			break
+		}
+	}
+
+	slash := strings.LastIndex(trimmed, "/")
+	colon := strings.LastIndex(trimmed, "::")
+
+	if slash > colon && slash > prefixEnd {
+		return scopeName[slash+1:]
+	} else if colon > prefixEnd {
+		return scopeName[colon+2:]
+	}
+
+	return scopeName
 }
