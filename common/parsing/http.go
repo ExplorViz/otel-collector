@@ -3,6 +3,8 @@ package parsing
 import (
 	"errors"
 	"log/slog"
+	"net/url"
+	"path"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -151,6 +153,29 @@ func parseHTTPServerTelemetry(tr attrib.TelemetryReader) (HTTPServerEntity, erro
 		route = tr.StrAttrib(semconv.URLTemplateKey)
 	}
 	if route == "" {
+		// Attempt to derive route from URL path instead
+		urlPath := tr.StrAttrib(semconv.URLPathKey)
+		if urlPath == "" {
+			urlPath, _ = pathFromFullUrl(tr.StrAttrib(semconv.URLFullKey))
+		}
+		if urlPath == "" {
+			// Use deprecated full URL attribute as fallback
+			urlPath, _ = pathFromFullUrl(tr.StrAttrib("http.url"))
+		}
+		if urlPath == "" {
+			// Use deprecated attribute giving the path + query portions of the URL as fallback
+			urlPath, _ = pathFromFullUrl("http://example.com" + tr.StrAttrib("http.target"))
+		}
+
+		if path.Ext(urlPath) != "" {
+			// A file extension at the end means this is likely a static resource, not an API endpoint.
+			// Since these paths might be high cardinality, we group them under a single route
+			route = "Static Resource"
+		} else {
+			route = urlPath
+		}
+	}
+	if route == "" {
 		return HTTPServerEntity{}, errors.New("http server parser: empty or missing route attribute")
 	}
 
@@ -201,5 +226,19 @@ func isHTTPRequest(tr attrib.TelemetryReader) bool {
 	})
 }
 
+func pathFromFullUrl(fullUrl string) (string, error) {
+	if fullUrl == "" {
+		return "", errors.New("received empty string as full url")
+	}
 
+	parsed, err := url.Parse(fullUrl)
+	if err != nil {
+		return "", err
+	}
 
+	if parsed.Path == "" {
+		return "/", nil
+	}
+
+	return parsed.Path, nil
+}
