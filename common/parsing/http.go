@@ -137,6 +137,10 @@ func ParseHTTPTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 }
 
 func parseHTTPServerTelemetry(tr attrib.TelemetryReader) (HTTPServerEntity, error) {
+	if !isHTTPRequest(tr) {
+		return HTTPServerEntity{}, errors.New("http server parser: no identifying http attributes found")
+	}
+
 	service := tr.ResourceStrAttrib(semconv.ServiceNameKey)
 	if service == "" {
 		return HTTPServerEntity{}, errors.New("http server parser: empty or missing service name attribute")
@@ -164,12 +168,22 @@ func parseHTTPServerTelemetry(tr attrib.TelemetryReader) (HTTPServerEntity, erro
 }
 
 func parseHTTPClientTelemetry(tr attrib.TelemetryReader) (HTTPClientEntity, error) {
+	if !isHTTPRequest(tr) {
+		return HTTPClientEntity{}, errors.New("http client parser: no identifying http attributes found")
+	}
+
 	service := tr.ResourceStrAttrib(semconv.ServiceNameKey)
 	if service == "" {
 		return HTTPClientEntity{}, errors.New("http client parser: empty or missing service name attribute")
 	}
 
-	isHTTPRequest := tr.HasAnyAttrKey([]attribute.Key{
+	scope := tr.Scope.Name()
+
+	return HTTPClientEntity{ServiceName: service, ScopeName: scope}, nil
+}
+
+func isHTTPRequest(tr attrib.TelemetryReader) bool {
+	return tr.HasAnyAttrKey([]attribute.Key{
 		semconv.HTTPConnectionStateKey,
 		semconv.HTTPRequestBodySizeKey,
 		semconv.HTTPRequestMethodKey,
@@ -185,12 +199,7 @@ func parseHTTPClientTelemetry(tr attrib.TelemetryReader) (HTTPClientEntity, erro
 		attribute.Key("http.target"),
 		attribute.Key("http.url"),
 	})
-
-	if !isHTTPRequest {
-		return HTTPClientEntity{}, errors.New("http client parser: no identifying http attributes found")
-	}
-
-	scope := tr.Scope.Name()
-
-	return HTTPClientEntity{ServiceName: service, ScopeName: scope}, nil
 }
+
+
+
