@@ -37,6 +37,7 @@ type TelemetryEntity struct {
 	//
 	//	*TelemetryEntity_GenericEntityDescriptor
 	//	*TelemetryEntity_CodeDescriptor
+	//	*TelemetryEntity_DatabaseDescriptor
 	//	*TelemetryEntity_RpcServerDescriptor
 	//	*TelemetryEntity_RpcClientDescriptor
 	//	*TelemetryEntity_HttpServerDescriptor
@@ -129,6 +130,15 @@ func (x *TelemetryEntity) GetCodeDescriptor() *CodeDescriptor {
 	return nil
 }
 
+func (x *TelemetryEntity) GetDatabaseDescriptor() *DatabaseDescriptor {
+	if x != nil {
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_DatabaseDescriptor); ok {
+			return x.DatabaseDescriptor
+		}
+	}
+	return nil
+}
+
 func (x *TelemetryEntity) GetRpcServerDescriptor() *RpcServerDescriptor {
 	if x != nil {
 		if x, ok := x.EntityDescriptor.(*TelemetryEntity_RpcServerDescriptor); ok {
@@ -177,25 +187,31 @@ type TelemetryEntity_CodeDescriptor struct {
 	CodeDescriptor *CodeDescriptor `protobuf:"bytes,6,opt,name=code_descriptor,json=codeDescriptor,proto3,oneof"`
 }
 
+type TelemetryEntity_DatabaseDescriptor struct {
+	DatabaseDescriptor *DatabaseDescriptor `protobuf:"bytes,7,opt,name=database_descriptor,json=databaseDescriptor,proto3,oneof"`
+}
+
 type TelemetryEntity_RpcServerDescriptor struct {
-	RpcServerDescriptor *RpcServerDescriptor `protobuf:"bytes,7,opt,name=rpc_server_descriptor,json=rpcServerDescriptor,proto3,oneof"`
+	RpcServerDescriptor *RpcServerDescriptor `protobuf:"bytes,8,opt,name=rpc_server_descriptor,json=rpcServerDescriptor,proto3,oneof"`
 }
 
 type TelemetryEntity_RpcClientDescriptor struct {
-	RpcClientDescriptor *RpcClientDescriptor `protobuf:"bytes,8,opt,name=rpc_client_descriptor,json=rpcClientDescriptor,proto3,oneof"`
+	RpcClientDescriptor *RpcClientDescriptor `protobuf:"bytes,9,opt,name=rpc_client_descriptor,json=rpcClientDescriptor,proto3,oneof"`
 }
 
 type TelemetryEntity_HttpServerDescriptor struct {
-	HttpServerDescriptor *HttpServerDescriptor `protobuf:"bytes,9,opt,name=http_server_descriptor,json=httpServerDescriptor,proto3,oneof"`
+	HttpServerDescriptor *HttpServerDescriptor `protobuf:"bytes,10,opt,name=http_server_descriptor,json=httpServerDescriptor,proto3,oneof"`
 }
 
 type TelemetryEntity_HttpClientDescriptor struct {
-	HttpClientDescriptor *HttpClientDescriptor `protobuf:"bytes,10,opt,name=http_client_descriptor,json=httpClientDescriptor,proto3,oneof"`
+	HttpClientDescriptor *HttpClientDescriptor `protobuf:"bytes,11,opt,name=http_client_descriptor,json=httpClientDescriptor,proto3,oneof"`
 }
 
 func (*TelemetryEntity_GenericEntityDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 func (*TelemetryEntity_CodeDescriptor) isTelemetryEntity_EntityDescriptor() {}
+
+func (*TelemetryEntity_DatabaseDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 func (*TelemetryEntity_RpcServerDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
@@ -363,6 +379,77 @@ func (x *CodeDescriptor) GetLanguage() string {
 }
 
 // *
+// DatabaseDescriptor describes a database management system,
+// and potentially a database and / or table within.
+type DatabaseDescriptor struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SystemName    string                 `protobuf:"bytes,1,opt,name=system_name,json=systemName,proto3" json:"system_name,omitempty"`       // Name of the database management system
+	TelemetryKey  string                 `protobuf:"bytes,2,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this database system
+	DatabaseName  *string                `protobuf:"bytes,3,opt,name=database_name,json=databaseName,proto3,oneof" json:"database_name,omitempty"`
+	TableName     *string                `protobuf:"bytes,4,opt,name=table_name,json=tableName,proto3,oneof" json:"table_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DatabaseDescriptor) Reset() {
+	*x = DatabaseDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DatabaseDescriptor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DatabaseDescriptor) ProtoMessage() {}
+
+func (x *DatabaseDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DatabaseDescriptor.ProtoReflect.Descriptor instead.
+func (*DatabaseDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DatabaseDescriptor) GetSystemName() string {
+	if x != nil {
+		return x.SystemName
+	}
+	return ""
+}
+
+func (x *DatabaseDescriptor) GetTelemetryKey() string {
+	if x != nil {
+		return x.TelemetryKey
+	}
+	return ""
+}
+
+func (x *DatabaseDescriptor) GetDatabaseName() string {
+	if x != nil && x.DatabaseName != nil {
+		return *x.DatabaseName
+	}
+	return ""
+}
+
+func (x *DatabaseDescriptor) GetTableName() string {
+	if x != nil && x.TableName != nil {
+		return *x.TableName
+	}
+	return ""
+}
+
+// *
 // RpcServerDescriptor describes a server-side remote procedure call (e.g. gRPC).
 type RpcServerDescriptor struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
@@ -378,7 +465,7 @@ type RpcServerDescriptor struct {
 
 func (x *RpcServerDescriptor) Reset() {
 	*x = RpcServerDescriptor{}
-	mi := &file_telemetry_entity_proto_msgTypes[3]
+	mi := &file_telemetry_entity_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -390,7 +477,7 @@ func (x *RpcServerDescriptor) String() string {
 func (*RpcServerDescriptor) ProtoMessage() {}
 
 func (x *RpcServerDescriptor) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_entity_proto_msgTypes[3]
+	mi := &file_telemetry_entity_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -403,7 +490,7 @@ func (x *RpcServerDescriptor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RpcServerDescriptor.ProtoReflect.Descriptor instead.
 func (*RpcServerDescriptor) Descriptor() ([]byte, []int) {
-	return file_telemetry_entity_proto_rawDescGZIP(), []int{3}
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RpcServerDescriptor) GetApplicationName() string {
@@ -461,7 +548,7 @@ type RpcClientDescriptor struct {
 
 func (x *RpcClientDescriptor) Reset() {
 	*x = RpcClientDescriptor{}
-	mi := &file_telemetry_entity_proto_msgTypes[4]
+	mi := &file_telemetry_entity_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -473,7 +560,7 @@ func (x *RpcClientDescriptor) String() string {
 func (*RpcClientDescriptor) ProtoMessage() {}
 
 func (x *RpcClientDescriptor) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_entity_proto_msgTypes[4]
+	mi := &file_telemetry_entity_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -486,7 +573,7 @@ func (x *RpcClientDescriptor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RpcClientDescriptor.ProtoReflect.Descriptor instead.
 func (*RpcClientDescriptor) Descriptor() ([]byte, []int) {
-	return file_telemetry_entity_proto_rawDescGZIP(), []int{4}
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RpcClientDescriptor) GetApplicationName() string {
@@ -526,7 +613,7 @@ type HttpServerDescriptor struct {
 
 func (x *HttpServerDescriptor) Reset() {
 	*x = HttpServerDescriptor{}
-	mi := &file_telemetry_entity_proto_msgTypes[5]
+	mi := &file_telemetry_entity_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +625,7 @@ func (x *HttpServerDescriptor) String() string {
 func (*HttpServerDescriptor) ProtoMessage() {}
 
 func (x *HttpServerDescriptor) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_entity_proto_msgTypes[5]
+	mi := &file_telemetry_entity_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +638,7 @@ func (x *HttpServerDescriptor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpServerDescriptor.ProtoReflect.Descriptor instead.
 func (*HttpServerDescriptor) Descriptor() ([]byte, []int) {
-	return file_telemetry_entity_proto_rawDescGZIP(), []int{5}
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *HttpServerDescriptor) GetApplicationName() string {
@@ -594,7 +681,7 @@ type HttpClientDescriptor struct {
 
 func (x *HttpClientDescriptor) Reset() {
 	*x = HttpClientDescriptor{}
-	mi := &file_telemetry_entity_proto_msgTypes[6]
+	mi := &file_telemetry_entity_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -606,7 +693,7 @@ func (x *HttpClientDescriptor) String() string {
 func (*HttpClientDescriptor) ProtoMessage() {}
 
 func (x *HttpClientDescriptor) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_entity_proto_msgTypes[6]
+	mi := &file_telemetry_entity_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -619,7 +706,7 @@ func (x *HttpClientDescriptor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpClientDescriptor.ProtoReflect.Descriptor instead.
 func (*HttpClientDescriptor) Descriptor() ([]byte, []int) {
-	return file_telemetry_entity_proto_rawDescGZIP(), []int{6}
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *HttpClientDescriptor) GetApplicationName() string {
@@ -640,19 +727,20 @@ var File_telemetry_entity_proto protoreflect.FileDescriptor
 
 const file_telemetry_entity_proto_rawDesc = "" +
 	"\n" +
-	"\x16telemetry_entity.proto\"\xca\x05\n" +
+	"\x16telemetry_entity.proto\"\x92\x06\n" +
 	"\x0fTelemetryEntity\x12,\n" +
 	"\x12landscape_token_id\x18\x01 \x01(\tR\x10landscapeTokenId\x124\n" +
 	"\x16landscape_token_secret\x18\x02 \x01(\tR\x14landscapeTokenSecret\x123\n" +
 	"\x15instrumentation_scope\x18\x03 \x01(\tR\x14instrumentationScope\x12+\n" +
 	"\x0fgit_commit_hash\x18\x04 \x01(\tH\x01R\rgitCommitHash\x88\x01\x01\x12V\n" +
 	"\x19generic_entity_descriptor\x18\x05 \x01(\v2\x18.GenericEntityDescriptorH\x00R\x17genericEntityDescriptor\x12:\n" +
-	"\x0fcode_descriptor\x18\x06 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptor\x12J\n" +
-	"\x15rpc_server_descriptor\x18\a \x01(\v2\x14.RpcServerDescriptorH\x00R\x13rpcServerDescriptor\x12J\n" +
-	"\x15rpc_client_descriptor\x18\b \x01(\v2\x14.RpcClientDescriptorH\x00R\x13rpcClientDescriptor\x12M\n" +
-	"\x16http_server_descriptor\x18\t \x01(\v2\x15.HttpServerDescriptorH\x00R\x14httpServerDescriptor\x12M\n" +
-	"\x16http_client_descriptor\x18\n" +
-	" \x01(\v2\x15.HttpClientDescriptorH\x00R\x14httpClientDescriptorB\x13\n" +
+	"\x0fcode_descriptor\x18\x06 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptor\x12F\n" +
+	"\x13database_descriptor\x18\a \x01(\v2\x13.DatabaseDescriptorH\x00R\x12databaseDescriptor\x12J\n" +
+	"\x15rpc_server_descriptor\x18\b \x01(\v2\x14.RpcServerDescriptorH\x00R\x13rpcServerDescriptor\x12J\n" +
+	"\x15rpc_client_descriptor\x18\t \x01(\v2\x14.RpcClientDescriptorH\x00R\x13rpcClientDescriptor\x12M\n" +
+	"\x16http_server_descriptor\x18\n" +
+	" \x01(\v2\x15.HttpServerDescriptorH\x00R\x14httpServerDescriptor\x12M\n" +
+	"\x16http_client_descriptor\x18\v \x01(\v2\x15.HttpClientDescriptorH\x00R\x14httpClientDescriptorB\x13\n" +
 	"\x11entity_descriptorB\x12\n" +
 	"\x10_git_commit_hash\"u\n" +
 	"\x17GenericEntityDescriptor\x12!\n" +
@@ -669,7 +757,16 @@ const file_telemetry_entity_proto_rawDesc = "" +
 	"class_name\x18\x06 \x01(\tH\x00R\tclassName\x88\x01\x01\x12\x1f\n" +
 	"\blanguage\x18\a \x01(\tH\x01R\blanguage\x88\x01\x01B\r\n" +
 	"\v_class_nameB\v\n" +
-	"\t_language\"\xa0\x02\n" +
+	"\t_language\"\xc9\x01\n" +
+	"\x12DatabaseDescriptor\x12\x1f\n" +
+	"\vsystem_name\x18\x01 \x01(\tR\n" +
+	"systemName\x12#\n" +
+	"\rtelemetry_key\x18\x02 \x01(\tR\ftelemetryKey\x12(\n" +
+	"\rdatabase_name\x18\x03 \x01(\tH\x00R\fdatabaseName\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"table_name\x18\x04 \x01(\tH\x01R\ttableName\x88\x01\x01B\x10\n" +
+	"\x0e_database_nameB\r\n" +
+	"\v_table_name\"\xa0\x02\n" +
 	"\x13RpcServerDescriptor\x12)\n" +
 	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x122\n" +
 	"\x15service_telemetry_key\x18\x02 \x01(\tR\x13serviceTelemetryKey\x12!\n" +
@@ -707,28 +804,30 @@ func file_telemetry_entity_proto_rawDescGZIP() []byte {
 	return file_telemetry_entity_proto_rawDescData
 }
 
-var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_telemetry_entity_proto_goTypes = []any{
 	(*TelemetryEntity)(nil),         // 0: TelemetryEntity
 	(*GenericEntityDescriptor)(nil), // 1: GenericEntityDescriptor
 	(*CodeDescriptor)(nil),          // 2: CodeDescriptor
-	(*RpcServerDescriptor)(nil),     // 3: RpcServerDescriptor
-	(*RpcClientDescriptor)(nil),     // 4: RpcClientDescriptor
-	(*HttpServerDescriptor)(nil),    // 5: HttpServerDescriptor
-	(*HttpClientDescriptor)(nil),    // 6: HttpClientDescriptor
+	(*DatabaseDescriptor)(nil),      // 3: DatabaseDescriptor
+	(*RpcServerDescriptor)(nil),     // 4: RpcServerDescriptor
+	(*RpcClientDescriptor)(nil),     // 5: RpcClientDescriptor
+	(*HttpServerDescriptor)(nil),    // 6: HttpServerDescriptor
+	(*HttpClientDescriptor)(nil),    // 7: HttpClientDescriptor
 }
 var file_telemetry_entity_proto_depIdxs = []int32{
 	1, // 0: TelemetryEntity.generic_entity_descriptor:type_name -> GenericEntityDescriptor
 	2, // 1: TelemetryEntity.code_descriptor:type_name -> CodeDescriptor
-	3, // 2: TelemetryEntity.rpc_server_descriptor:type_name -> RpcServerDescriptor
-	4, // 3: TelemetryEntity.rpc_client_descriptor:type_name -> RpcClientDescriptor
-	5, // 4: TelemetryEntity.http_server_descriptor:type_name -> HttpServerDescriptor
-	6, // 5: TelemetryEntity.http_client_descriptor:type_name -> HttpClientDescriptor
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	3, // 2: TelemetryEntity.database_descriptor:type_name -> DatabaseDescriptor
+	4, // 3: TelemetryEntity.rpc_server_descriptor:type_name -> RpcServerDescriptor
+	5, // 4: TelemetryEntity.rpc_client_descriptor:type_name -> RpcClientDescriptor
+	6, // 5: TelemetryEntity.http_server_descriptor:type_name -> HttpServerDescriptor
+	7, // 6: TelemetryEntity.http_client_descriptor:type_name -> HttpClientDescriptor
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_telemetry_entity_proto_init() }
@@ -739,6 +838,7 @@ func file_telemetry_entity_proto_init() {
 	file_telemetry_entity_proto_msgTypes[0].OneofWrappers = []any{
 		(*TelemetryEntity_GenericEntityDescriptor)(nil),
 		(*TelemetryEntity_CodeDescriptor)(nil),
+		(*TelemetryEntity_DatabaseDescriptor)(nil),
 		(*TelemetryEntity_RpcServerDescriptor)(nil),
 		(*TelemetryEntity_RpcClientDescriptor)(nil),
 		(*TelemetryEntity_HttpServerDescriptor)(nil),
@@ -747,13 +847,14 @@ func file_telemetry_entity_proto_init() {
 	file_telemetry_entity_proto_msgTypes[2].OneofWrappers = []any{}
 	file_telemetry_entity_proto_msgTypes[3].OneofWrappers = []any{}
 	file_telemetry_entity_proto_msgTypes[4].OneofWrappers = []any{}
+	file_telemetry_entity_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_telemetry_entity_proto_rawDesc), len(file_telemetry_entity_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

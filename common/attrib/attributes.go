@@ -33,6 +33,10 @@ var ExplorVizAttributes = struct {
 	CodeClassName    ExplorVizAttribute
 	CodeLanguage     ExplorVizAttribute
 
+	DatabaseSystemName ExplorVizAttribute
+	DatabaseName       ExplorVizAttribute
+	DatabaseTableName  ExplorVizAttribute
+
 	RPCServiceName ExplorVizAttribute
 	RPCMethodName  ExplorVizAttribute
 	RPCSystemName  ExplorVizAttribute
@@ -57,6 +61,10 @@ var ExplorVizAttributes = struct {
 	CodeFunctionName: ExplorVizAttribute{Key: "explorviz.code.function.name", DefaultValue: pcommon.NewValueStr("unknown-function-name")},
 	CodeClassName:    ExplorVizAttribute{Key: "explorviz.code.class.name", DefaultValue: pcommon.NewValueStr("unknown-class-name")},
 	CodeLanguage:     ExplorVizAttribute{Key: "explorviz.code.language", DefaultValue: pcommon.NewValueStr("")},
+
+	DatabaseSystemName: ExplorVizAttribute{Key: "explorviz.db.system", DefaultValue: pcommon.NewValueStr("unknown-dbms")},
+	DatabaseName:       ExplorVizAttribute{Key: "explorviz.db.database", DefaultValue: pcommon.NewValueStr("unknown-database")},
+	DatabaseTableName:  ExplorVizAttribute{Key: "explorviz.db.table", DefaultValue: pcommon.NewValueStr("unknown-table")},
 
 	RPCServiceName: ExplorVizAttribute{Key: "explorviz.rpc.service", DefaultValue: pcommon.NewValueStr("unknown-rpc-service")},
 	RPCMethodName:  ExplorVizAttribute{Key: "explorviz.rpc.method", DefaultValue: pcommon.NewValueStr("unknown-rpc-method")},
