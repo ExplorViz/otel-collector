@@ -9,6 +9,7 @@ import (
 	"unicode"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
 
 	"github.com/ExplorViz/otel-collector/common/attrib"
@@ -113,6 +114,15 @@ func langFromFilePath(path string) (string, error) {
 //
 // [OTel semconv code attributes]: https://opentelemetry.io/docs/specs/semconv/registry/attributes/code/
 func ParseCodeTelemetry(tr attrib.TelemetryReader) (Entity, error) {
+	if !tr.HasAnyAttrKey([]attribute.Key{
+		semconv.CodeFunctionNameKey,
+		semconv.CodeFilePathKey,
+		"code.function",
+		"code.filepath",
+	}) {
+		return CodeEntity{}, errors.New("code parser: no identifying code attributes found")
+	}
+
 	lang := tr.ResourceStrAttrib(semconv.TelemetrySDKLanguageKey)
 	if lang == "" {
 		lang = tr.StrAttrib(semconv.TelemetrySDKLanguageKey)
