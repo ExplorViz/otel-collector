@@ -75,7 +75,7 @@ func genericEntityFromAttribs(m pcommon.Map) (GenericEntity, error) {
 func ParseGenericTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 	service := tr.ResourceStrAttrib(semconv.ServiceNameKey)
 	if service == "" {
-		return GenericEntity{}, errors.New("generic service parser: empty or missing service name attribute")
+		return GenericEntity{}, errors.New("generic entity parser: empty or missing service name attribute")
 	}
 
 	scope := tr.Scope.Name()

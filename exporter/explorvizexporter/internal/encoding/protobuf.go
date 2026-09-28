@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
-
 	"github.com/ExplorViz/otel-collector/common/attrib"
 	"github.com/ExplorViz/otel-collector/common/genproto/telemetrypb"
 	"github.com/ExplorViz/otel-collector/common/parsing"
@@ -30,14 +28,9 @@ func ToProtobuf(tr attrib.TelemetryReader, entity parsing.Entity) (*telemetrypb.
 
 	switch e := entity.(type) {
 	case parsing.CodeEntity:
-		appName := tr.ResourceStrAttrib(semconv.ServiceNameKey)
-		if appName == "" {
-			appName = attrib.FallbackValues.ServiceName
-		}
-
 		te.EntityDescriptor = &telemetrypb.TelemetryEntity_CodeDescriptor{
 			CodeDescriptor: &telemetrypb.CodeDescriptor{
-				ApplicationName: appName,
+				ApplicationName: e.ApplicationName,
 
 				FileTelemetryKey: telemetryKey,
 				FilePath:         e.FilePath,

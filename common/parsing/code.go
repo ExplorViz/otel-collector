@@ -33,6 +33,8 @@ const CodeEntityType string = "code"
 
 // A CodeEntity represents the execution of a function.
 type CodeEntity struct {
+	ApplicationName string
+
 	// FilePath is the path of the file within which the function is contained, with "/" as the separator.
 	// The path should be a relative path that can uniquely identify the file within the application.
 	FilePath string
@@ -50,15 +52,16 @@ type CodeEntity struct {
 }
 
 func (c CodeEntity) ID() string {
-	return "function" + "|" + c.FilePath + "|" + c.ClassName + "|" + c.FuncName
+	return "function" + "|" + c.ApplicationName + "|" + c.FilePath + "|" + c.ClassName + "|" + c.FuncName
 }
 
 func (c CodeEntity) TelemetryKey() string {
-	return "file" + "|" + c.FilePath
+	return "file" + "|" + c.ApplicationName + "|" + c.FilePath
 }
 
 func (c CodeEntity) ToAttributes(attrs *pcommon.Map) {
 	attrs.PutStr(string(attrib.ExplorVizAttributes.EntityType.Key), CodeEntityType)
+	attrs.PutStr(string(attrib.ExplorVizAttributes.ServiceName.Key), c.ApplicationName)
 	attrs.PutStr(string(attrib.ExplorVizAttributes.CodeFilePath.Key), c.FilePath)
 	attrs.PutStr(string(attrib.ExplorVizAttributes.CodeFunctionName.Key), c.FuncName)
 	attrs.PutStr(string(attrib.ExplorVizAttributes.CodeClassName.Key), c.ClassName)
@@ -69,6 +72,11 @@ func (c CodeEntity) ToAttributes(attrs *pcommon.Map) {
 // If the provided map entries are incomplete (meaning a mandatory attribute is missing),
 // then a zero-initialized CodeEntity and an error is returned.
 func codeEntityFromAttribs(m pcommon.Map) (CodeEntity, error) {
+	app, ok := m.Get(string(attrib.ExplorVizAttributes.ServiceName.Key))
+	if !ok || app.Str() == "" {
+		return CodeEntity{}, errors.New("empty or missing string attribute for application name")
+	}
+
 	filePath, ok := m.Get(string(attrib.ExplorVizAttributes.CodeFilePath.Key))
 	if !ok || filePath.Str() == "" {
 		return CodeEntity{}, errors.New("empty or missing string attribute for file path")
@@ -83,10 +91,11 @@ func codeEntityFromAttribs(m pcommon.Map) (CodeEntity, error) {
 	lang, _ := m.Get(string(attrib.ExplorVizAttributes.CodeLanguage.Key))
 
 	return CodeEntity{
-		FilePath:  filePath.Str(),
-		FuncName:  funcName.Str(),
-		ClassName: className.Str(),
-		Language:  lang.Str(),
+		ApplicationName: app.Str(),
+		FilePath:        filePath.Str(),
+		FuncName:        funcName.Str(),
+		ClassName:       className.Str(),
+		Language:        lang.Str(),
 	}, nil
 }
 
@@ -123,6 +132,11 @@ func ParseCodeTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 		return CodeEntity{}, errors.New("code parser: no identifying code attributes found")
 	}
 
+	app := tr.ResourceStrAttrib(semconv.ServiceNameKey)
+	if app == "" {
+		return CodeEntity{}, fmt.Errorf("code parser: empty or missing application name attribute")
+	}
+
 	lang := tr.ResourceStrAttrib(semconv.TelemetrySDKLanguageKey)
 	if lang == "" {
 		lang = tr.StrAttrib(semconv.TelemetrySDKLanguageKey)
@@ -145,10 +159,11 @@ func ParseCodeTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 	}
 
 	return CodeEntity{
-		FilePath:  strings.TrimPrefix(parseResult.FilePath, "/"),
-		FuncName:  parseResult.FuncName,
-		ClassName: parseResult.ClassName,
-		Language:  lang,
+		ApplicationName: app,
+		FilePath:        strings.TrimPrefix(parseResult.FilePath, "/"),
+		FuncName:        parseResult.FuncName,
+		ClassName:       parseResult.ClassName,
+		Language:        lang,
 	}, nil
 }
 
