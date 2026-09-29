@@ -16,6 +16,13 @@ import (
 
 const HTTPServerEntityType string = "httpserver"
 
+// When an HTTP request is identified as fetching a static resource
+// like an image or a style sheet as opposed to an API endpoint,
+// then this name will be used as a catch-all endpoint for such requests.
+// Otherwise, a lot of entities would be produced due to potentially high
+// cardinality of resources in more complex applications.
+const HTTPStaticResourceRoute = "Static Resource"
+
 // An HTTPServerEntity represents a specific request route for a server's HTTP API.
 type HTTPServerEntity struct {
 	// Name of the service or application to which this API endpoint belongs.
@@ -180,7 +187,7 @@ func parseHTTPServerTelemetry(tr attrib.TelemetryReader) (HTTPServerEntity, erro
 		if path.Ext(urlPath) != "" {
 			// A file extension at the end means this is likely a static resource, not an API endpoint.
 			// Since these paths might be high cardinality, we group them under a single route
-			route = "Static Resource"
+			route = HTTPStaticResourceRoute
 		} else {
 			route = urlPath
 		}
