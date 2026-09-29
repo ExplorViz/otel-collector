@@ -21,6 +21,9 @@ type HTTPServerEntity struct {
 	// Name of the service or application to which this API endpoint belongs.
 	ServiceName string
 
+	// Name of the instrumentation scope to which the entity belongs
+	ScopeName string
+
 	// The matched route template of the received request's URL path.
 	// Dynamic segments in the path should be represented by placeholders.
 	Route string
@@ -30,16 +33,17 @@ type HTTPServerEntity struct {
 }
 
 func (h HTTPServerEntity) ID() string {
-	return "httpserver" + "|" + h.ServiceName + "|" + h.Method + "|" + h.Route
+	return "httpserver" + "|" + h.ServiceName + "|" + h.ScopeName + "|" + h.Method + "|" + h.Route
 }
 
 func (h HTTPServerEntity) TelemetryKey() string {
-	return "httpserver" + "|" + h.ServiceName + "|" + h.Route
+	return "httpserver" + "|" + h.ServiceName + "|" + h.ScopeName + "|" + h.Route
 }
 
 func (h HTTPServerEntity) ToAttributes(attrs *pcommon.Map) {
 	attrs.PutStr(string(attrib.ExplorVizAttributes.EntityType.Key), HTTPServerEntityType)
 	attrs.PutStr(string(attrib.ExplorVizAttributes.ServiceName.Key), h.ServiceName)
+	attrs.PutStr(string(attrib.ExplorVizAttributes.ScopeName.Key), h.ScopeName)
 	attrs.PutStr(string(attrib.ExplorVizAttributes.HTTPRoute.Key), h.Route)
 	attrs.PutStr(string(attrib.ExplorVizAttributes.HTTPMethod.Key), h.Method)
 }
@@ -53,6 +57,11 @@ func httpServerEntityFromAttribs(m pcommon.Map) (HTTPServerEntity, error) {
 		return HTTPServerEntity{}, errors.New("empty or missing string attribute for service name")
 	}
 
+	scope, ok := m.Get(string(attrib.ExplorVizAttributes.ScopeName.Key))
+	if !ok || scope.Str() == "" {
+		return HTTPServerEntity{}, errors.New("empty or missing string attribute for scope name")
+	}
+
 	route, ok := m.Get(string(attrib.ExplorVizAttributes.HTTPRoute.Key))
 	if !ok || route.Str() == "" {
 		return HTTPServerEntity{}, errors.New("empty or missing string attribute for http route")
@@ -62,6 +71,7 @@ func httpServerEntityFromAttribs(m pcommon.Map) (HTTPServerEntity, error) {
 
 	return HTTPServerEntity{
 		ServiceName: service.Str(),
+		ScopeName:   scope.Str(),
 		Route:       route.Str(),
 		Method:      method.Str(),
 	}, nil
@@ -185,8 +195,11 @@ func parseHTTPServerTelemetry(tr attrib.TelemetryReader) (HTTPServerEntity, erro
 		method = tr.StrAttrib("http.method")
 	}
 
+	scope := tr.Scope.Name()
+
 	return HTTPServerEntity{
 		ServiceName: service,
+		ScopeName:   scope,
 		Route:       route,
 		Method:      method,
 	}, nil
