@@ -172,7 +172,7 @@ func parseHTTPServerTelemetry(tr attrib.TelemetryReader) (HTTPServerEntity, erro
 			// Use deprecated full URL attribute as fallback
 			urlPath, _ = pathFromFullUrl(tr.StrAttrib("http.url"))
 		}
-		if urlPath == "" {
+		if urlPath == "" && tr.StrAttrib("http.target") != "" {
 			// Use deprecated attribute giving the path + query portions of the URL as fallback
 			urlPath, _ = pathFromFullUrl("http://example.com" + tr.StrAttrib("http.target"))
 		}
