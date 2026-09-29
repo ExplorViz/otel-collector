@@ -25,6 +25,7 @@ var ExplorVizAttributes = struct {
 	TelemetryKey ExplorVizAttribute // Identifier / lookup key of the visualization object to which this telemetry belongs, e.g. building
 
 	ServiceName ExplorVizAttribute
+	ScopeName   ExplorVizAttribute
 
 	CodeFileID       ExplorVizAttribute
 	CodeFilePath     ExplorVizAttribute
@@ -32,12 +33,18 @@ var ExplorVizAttributes = struct {
 	CodeClassName    ExplorVizAttribute
 	CodeLanguage     ExplorVizAttribute
 
+	DatabaseSystemName ExplorVizAttribute
+	DatabaseName       ExplorVizAttribute
+	DatabaseTableName  ExplorVizAttribute
+
 	RPCServiceName ExplorVizAttribute
 	RPCMethodName  ExplorVizAttribute
 	RPCSystemName  ExplorVizAttribute
 
 	HTTPRoute  ExplorVizAttribute
 	HTTPMethod ExplorVizAttribute
+
+	GenericEntityName ExplorVizAttribute
 }{
 	LandscapeTokenID:     ExplorVizAttribute{Key: "explorviz.token.id", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
 	LandscapeTokenSecret: ExplorVizAttribute{Key: "explorviz.token.secret", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
@@ -47,6 +54,7 @@ var ExplorVizAttributes = struct {
 	TelemetryKey: ExplorVizAttribute{Key: "explorviz.entity.telemetrykey", DefaultValue: pcommon.NewValueStr("unknown-telemetry-key")},
 
 	ServiceName: ExplorVizAttribute{Key: "explorviz.service.name", DefaultValue: pcommon.NewValueStr("unknown-service-name")},
+	ScopeName:   ExplorVizAttribute{Key: "explorviz.scope.name", DefaultValue: pcommon.NewValueStr("unknown-scope-name")},
 
 	CodeFileID:       ExplorVizAttribute{Key: "explorviz.code.file.id", DefaultValue: pcommon.NewValueStr("unknown-file-id")},
 	CodeFilePath:     ExplorVizAttribute{Key: "explorviz.code.file.path", DefaultValue: pcommon.NewValueStr("unknown-file-path")},
@@ -54,12 +62,18 @@ var ExplorVizAttributes = struct {
 	CodeClassName:    ExplorVizAttribute{Key: "explorviz.code.class.name", DefaultValue: pcommon.NewValueStr("unknown-class-name")},
 	CodeLanguage:     ExplorVizAttribute{Key: "explorviz.code.language", DefaultValue: pcommon.NewValueStr("")},
 
+	DatabaseSystemName: ExplorVizAttribute{Key: "explorviz.db.system", DefaultValue: pcommon.NewValueStr("unknown-dbms")},
+	DatabaseName:       ExplorVizAttribute{Key: "explorviz.db.database", DefaultValue: pcommon.NewValueStr("unknown-database")},
+	DatabaseTableName:  ExplorVizAttribute{Key: "explorviz.db.table", DefaultValue: pcommon.NewValueStr("unknown-table")},
+
 	RPCServiceName: ExplorVizAttribute{Key: "explorviz.rpc.service", DefaultValue: pcommon.NewValueStr("unknown-rpc-service")},
 	RPCMethodName:  ExplorVizAttribute{Key: "explorviz.rpc.method", DefaultValue: pcommon.NewValueStr("unknown-rpc-method")},
 	RPCSystemName:  ExplorVizAttribute{Key: "explorviz.rpc.system", DefaultValue: pcommon.NewValueStr("unknown-rpc-system")},
 
 	HTTPRoute:  ExplorVizAttribute{Key: "explorviz.http.route", DefaultValue: pcommon.NewValueStr("/unknown-route")},
 	HTTPMethod: ExplorVizAttribute{Key: "explorviz.http.method", DefaultValue: pcommon.NewValueStr("unknown-method")},
+
+	GenericEntityName: ExplorVizAttribute{Key: "explorviz.genericentity.name", DefaultValue: pcommon.NewValueStr("unknown-name")},
 }
 
 // FallbackValues provides values for (non-ExplorViz specific) OTel attributes to use if the attribute is not provided within incoming telemetry.

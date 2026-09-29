@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 
 	"github.com/stretchr/testify/assert"
@@ -95,4 +96,22 @@ func TestStrAttrib(t *testing.T) {
 
 	fqn := tr.StrAttrib(semconv.CodeFunctionNameKey)
 	assert.Equal(t, defaultFunctionFQN, fqn)
+}
+
+func TestHasAnyAttrKey(t *testing.T) {
+	attrs := pcommon.NewMap()
+	tr := TelemetryReader{Attrs: &attrs}
+	assert.Equal(t, false, tr.HasAnyAttrKey([]attribute.Key{"explorviz.test.attribute"}))
+	assert.Equal(t, false, tr.HasAnyAttrKey([]attribute.Key{"explorviz.other.attribute", "explorviz.test.attribute"}))
+
+	attrs.PutStr("explorviz.test.attribute", "somevalue")
+	assert.Equal(t, true, tr.HasAnyAttrKey([]attribute.Key{"explorviz.test.attribute"}))
+	assert.Equal(t, false, tr.HasAnyAttrKey([]attribute.Key{"explorviz.other.attribute"}))
+	assert.Equal(t, true, tr.HasAnyAttrKey([]attribute.Key{"explorviz.other.attribute", "explorviz.test.attribute"}))
+
+	attrs.PutInt("explorviz.other.attribute", 42)
+	assert.Equal(t, true, tr.HasAnyAttrKey([]attribute.Key{"explorviz.test.attribute"}))
+	assert.Equal(t, true, tr.HasAnyAttrKey([]attribute.Key{"explorviz.other.attribute"}))
+	assert.Equal(t, true, tr.HasAnyAttrKey([]attribute.Key{"explorviz.test.attribute", "explorviz.other.attribute"}))
+	assert.Equal(t, true, tr.HasAnyAttrKey([]attribute.Key{"explorviz.other.attribute", "explorviz.test.attribute"}))
 }

@@ -21,6 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// *
 // TelemetryEntity describes runtime structure data derived from OpenTelemetry stream analysis.
 type TelemetryEntity struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
@@ -34,10 +35,13 @@ type TelemetryEntity struct {
 	//
 	// Types that are valid to be assigned to EntityDescriptor:
 	//
-	//	*TelemetryEntity_GenericServiceDescriptor
+	//	*TelemetryEntity_GenericEntityDescriptor
 	//	*TelemetryEntity_CodeDescriptor
-	//	*TelemetryEntity_RpcDescriptor
-	//	*TelemetryEntity_HttpDescriptor
+	//	*TelemetryEntity_DatabaseDescriptor
+	//	*TelemetryEntity_RpcServerDescriptor
+	//	*TelemetryEntity_RpcClientDescriptor
+	//	*TelemetryEntity_HttpServerDescriptor
+	//	*TelemetryEntity_HttpClientDescriptor
 	EntityDescriptor isTelemetryEntity_EntityDescriptor `protobuf_oneof:"entity_descriptor"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -108,10 +112,10 @@ func (x *TelemetryEntity) GetEntityDescriptor() isTelemetryEntity_EntityDescript
 	return nil
 }
 
-func (x *TelemetryEntity) GetGenericServiceDescriptor() *GenericServiceDescriptor {
+func (x *TelemetryEntity) GetGenericEntityDescriptor() *GenericEntityDescriptor {
 	if x != nil {
-		if x, ok := x.EntityDescriptor.(*TelemetryEntity_GenericServiceDescriptor); ok {
-			return x.GenericServiceDescriptor
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_GenericEntityDescriptor); ok {
+			return x.GenericEntityDescriptor
 		}
 	}
 	return nil
@@ -126,19 +130,46 @@ func (x *TelemetryEntity) GetCodeDescriptor() *CodeDescriptor {
 	return nil
 }
 
-func (x *TelemetryEntity) GetRpcDescriptor() *RpcDescriptor {
+func (x *TelemetryEntity) GetDatabaseDescriptor() *DatabaseDescriptor {
 	if x != nil {
-		if x, ok := x.EntityDescriptor.(*TelemetryEntity_RpcDescriptor); ok {
-			return x.RpcDescriptor
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_DatabaseDescriptor); ok {
+			return x.DatabaseDescriptor
 		}
 	}
 	return nil
 }
 
-func (x *TelemetryEntity) GetHttpDescriptor() *HttpDescriptor {
+func (x *TelemetryEntity) GetRpcServerDescriptor() *RpcServerDescriptor {
 	if x != nil {
-		if x, ok := x.EntityDescriptor.(*TelemetryEntity_HttpDescriptor); ok {
-			return x.HttpDescriptor
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_RpcServerDescriptor); ok {
+			return x.RpcServerDescriptor
+		}
+	}
+	return nil
+}
+
+func (x *TelemetryEntity) GetRpcClientDescriptor() *RpcClientDescriptor {
+	if x != nil {
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_RpcClientDescriptor); ok {
+			return x.RpcClientDescriptor
+		}
+	}
+	return nil
+}
+
+func (x *TelemetryEntity) GetHttpServerDescriptor() *HttpServerDescriptor {
+	if x != nil {
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_HttpServerDescriptor); ok {
+			return x.HttpServerDescriptor
+		}
+	}
+	return nil
+}
+
+func (x *TelemetryEntity) GetHttpClientDescriptor() *HttpClientDescriptor {
+	if x != nil {
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_HttpClientDescriptor); ok {
+			return x.HttpClientDescriptor
 		}
 	}
 	return nil
@@ -148,55 +179,74 @@ type isTelemetryEntity_EntityDescriptor interface {
 	isTelemetryEntity_EntityDescriptor()
 }
 
-type TelemetryEntity_GenericServiceDescriptor struct {
-	GenericServiceDescriptor *GenericServiceDescriptor `protobuf:"bytes,5,opt,name=generic_service_descriptor,json=genericServiceDescriptor,proto3,oneof"`
+type TelemetryEntity_GenericEntityDescriptor struct {
+	GenericEntityDescriptor *GenericEntityDescriptor `protobuf:"bytes,5,opt,name=generic_entity_descriptor,json=genericEntityDescriptor,proto3,oneof"`
 }
 
 type TelemetryEntity_CodeDescriptor struct {
 	CodeDescriptor *CodeDescriptor `protobuf:"bytes,6,opt,name=code_descriptor,json=codeDescriptor,proto3,oneof"`
 }
 
-type TelemetryEntity_RpcDescriptor struct {
-	RpcDescriptor *RpcDescriptor `protobuf:"bytes,7,opt,name=rpc_descriptor,json=rpcDescriptor,proto3,oneof"`
+type TelemetryEntity_DatabaseDescriptor struct {
+	DatabaseDescriptor *DatabaseDescriptor `protobuf:"bytes,7,opt,name=database_descriptor,json=databaseDescriptor,proto3,oneof"`
 }
 
-type TelemetryEntity_HttpDescriptor struct {
-	HttpDescriptor *HttpDescriptor `protobuf:"bytes,8,opt,name=http_descriptor,json=httpDescriptor,proto3,oneof"`
+type TelemetryEntity_RpcServerDescriptor struct {
+	RpcServerDescriptor *RpcServerDescriptor `protobuf:"bytes,8,opt,name=rpc_server_descriptor,json=rpcServerDescriptor,proto3,oneof"`
 }
 
-func (*TelemetryEntity_GenericServiceDescriptor) isTelemetryEntity_EntityDescriptor() {}
+type TelemetryEntity_RpcClientDescriptor struct {
+	RpcClientDescriptor *RpcClientDescriptor `protobuf:"bytes,9,opt,name=rpc_client_descriptor,json=rpcClientDescriptor,proto3,oneof"`
+}
+
+type TelemetryEntity_HttpServerDescriptor struct {
+	HttpServerDescriptor *HttpServerDescriptor `protobuf:"bytes,10,opt,name=http_server_descriptor,json=httpServerDescriptor,proto3,oneof"`
+}
+
+type TelemetryEntity_HttpClientDescriptor struct {
+	HttpClientDescriptor *HttpClientDescriptor `protobuf:"bytes,11,opt,name=http_client_descriptor,json=httpClientDescriptor,proto3,oneof"`
+}
+
+func (*TelemetryEntity_GenericEntityDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 func (*TelemetryEntity_CodeDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
-func (*TelemetryEntity_RpcDescriptor) isTelemetryEntity_EntityDescriptor() {}
+func (*TelemetryEntity_DatabaseDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
-func (*TelemetryEntity_HttpDescriptor) isTelemetryEntity_EntityDescriptor() {}
+func (*TelemetryEntity_RpcServerDescriptor) isTelemetryEntity_EntityDescriptor() {}
+
+func (*TelemetryEntity_RpcClientDescriptor) isTelemetryEntity_EntityDescriptor() {}
+
+func (*TelemetryEntity_HttpServerDescriptor) isTelemetryEntity_EntityDescriptor() {}
+
+func (*TelemetryEntity_HttpClientDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 // *
-// GenericServiceDescriptor describes a service for which no entity information
-// apart from the service name could be deducted.
-type GenericServiceDescriptor struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	ServiceTelemetryKey string                 `protobuf:"bytes,1,opt,name=service_telemetry_key,json=serviceTelemetryKey,proto3" json:"service_telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this service
-	ServiceName         string                 `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+// GenericEntityDescriptor describes an entity for which no information apart from the service name
+// could be deduced.
+type GenericEntityDescriptor struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServiceName   string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                     // Unqualified variant of the instrumentation scope name
+	TelemetryKey  string                 `protobuf:"bytes,3,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this entity
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GenericServiceDescriptor) Reset() {
-	*x = GenericServiceDescriptor{}
+func (x *GenericEntityDescriptor) Reset() {
+	*x = GenericEntityDescriptor{}
 	mi := &file_telemetry_entity_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GenericServiceDescriptor) String() string {
+func (x *GenericEntityDescriptor) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GenericServiceDescriptor) ProtoMessage() {}
+func (*GenericEntityDescriptor) ProtoMessage() {}
 
-func (x *GenericServiceDescriptor) ProtoReflect() protoreflect.Message {
+func (x *GenericEntityDescriptor) ProtoReflect() protoreflect.Message {
 	mi := &file_telemetry_entity_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -208,21 +258,28 @@ func (x *GenericServiceDescriptor) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GenericServiceDescriptor.ProtoReflect.Descriptor instead.
-func (*GenericServiceDescriptor) Descriptor() ([]byte, []int) {
+// Deprecated: Use GenericEntityDescriptor.ProtoReflect.Descriptor instead.
+func (*GenericEntityDescriptor) Descriptor() ([]byte, []int) {
 	return file_telemetry_entity_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GenericServiceDescriptor) GetServiceTelemetryKey() string {
+func (x *GenericEntityDescriptor) GetServiceName() string {
 	if x != nil {
-		return x.ServiceTelemetryKey
+		return x.ServiceName
 	}
 	return ""
 }
 
-func (x *GenericServiceDescriptor) GetServiceName() string {
+func (x *GenericEntityDescriptor) GetName() string {
 	if x != nil {
-		return x.ServiceName
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GenericEntityDescriptor) GetTelemetryKey() string {
+	if x != nil {
+		return x.TelemetryKey
 	}
 	return ""
 }
@@ -322,8 +379,79 @@ func (x *CodeDescriptor) GetLanguage() string {
 }
 
 // *
-// RpcDescriptor describes a method within a remote procedure call service (e.g. gRPC).
-type RpcDescriptor struct {
+// DatabaseDescriptor describes a database management system,
+// and potentially a database and / or table within.
+type DatabaseDescriptor struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SystemName    string                 `protobuf:"bytes,1,opt,name=system_name,json=systemName,proto3" json:"system_name,omitempty"`       // Name of the database management system
+	TelemetryKey  string                 `protobuf:"bytes,2,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this database system
+	DatabaseName  *string                `protobuf:"bytes,3,opt,name=database_name,json=databaseName,proto3,oneof" json:"database_name,omitempty"`
+	TableName     *string                `protobuf:"bytes,4,opt,name=table_name,json=tableName,proto3,oneof" json:"table_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DatabaseDescriptor) Reset() {
+	*x = DatabaseDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DatabaseDescriptor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DatabaseDescriptor) ProtoMessage() {}
+
+func (x *DatabaseDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DatabaseDescriptor.ProtoReflect.Descriptor instead.
+func (*DatabaseDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DatabaseDescriptor) GetSystemName() string {
+	if x != nil {
+		return x.SystemName
+	}
+	return ""
+}
+
+func (x *DatabaseDescriptor) GetTelemetryKey() string {
+	if x != nil {
+		return x.TelemetryKey
+	}
+	return ""
+}
+
+func (x *DatabaseDescriptor) GetDatabaseName() string {
+	if x != nil && x.DatabaseName != nil {
+		return *x.DatabaseName
+	}
+	return ""
+}
+
+func (x *DatabaseDescriptor) GetTableName() string {
+	if x != nil && x.TableName != nil {
+		return *x.TableName
+	}
+	return ""
+}
+
+// *
+// RpcServerDescriptor describes a server-side remote procedure call (e.g. gRPC).
+type RpcServerDescriptor struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	ApplicationName     string                 `protobuf:"bytes,1,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`               // Name of the application or service hosting the RPC server
 	ServiceTelemetryKey string                 `protobuf:"bytes,2,opt,name=service_telemetry_key,json=serviceTelemetryKey,proto3" json:"service_telemetry_key,omitempty"` // Lookup key for retrieving telemetry for this RPC service
@@ -335,21 +463,21 @@ type RpcDescriptor struct {
 	sizeCache           protoimpl.SizeCache
 }
 
-func (x *RpcDescriptor) Reset() {
-	*x = RpcDescriptor{}
-	mi := &file_telemetry_entity_proto_msgTypes[3]
+func (x *RpcServerDescriptor) Reset() {
+	*x = RpcServerDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RpcDescriptor) String() string {
+func (x *RpcServerDescriptor) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RpcDescriptor) ProtoMessage() {}
+func (*RpcServerDescriptor) ProtoMessage() {}
 
-func (x *RpcDescriptor) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_entity_proto_msgTypes[3]
+func (x *RpcServerDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -360,47 +488,47 @@ func (x *RpcDescriptor) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RpcDescriptor.ProtoReflect.Descriptor instead.
-func (*RpcDescriptor) Descriptor() ([]byte, []int) {
-	return file_telemetry_entity_proto_rawDescGZIP(), []int{3}
+// Deprecated: Use RpcServerDescriptor.ProtoReflect.Descriptor instead.
+func (*RpcServerDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *RpcDescriptor) GetApplicationName() string {
+func (x *RpcServerDescriptor) GetApplicationName() string {
 	if x != nil {
 		return x.ApplicationName
 	}
 	return ""
 }
 
-func (x *RpcDescriptor) GetServiceTelemetryKey() string {
+func (x *RpcServerDescriptor) GetServiceTelemetryKey() string {
 	if x != nil {
 		return x.ServiceTelemetryKey
 	}
 	return ""
 }
 
-func (x *RpcDescriptor) GetServiceName() string {
+func (x *RpcServerDescriptor) GetServiceName() string {
 	if x != nil {
 		return x.ServiceName
 	}
 	return ""
 }
 
-func (x *RpcDescriptor) GetMethodTelemetryKey() string {
+func (x *RpcServerDescriptor) GetMethodTelemetryKey() string {
 	if x != nil {
 		return x.MethodTelemetryKey
 	}
 	return ""
 }
 
-func (x *RpcDescriptor) GetMethodName() string {
+func (x *RpcServerDescriptor) GetMethodName() string {
 	if x != nil {
 		return x.MethodName
 	}
 	return ""
 }
 
-func (x *RpcDescriptor) GetSystemName() string {
+func (x *RpcServerDescriptor) GetSystemName() string {
 	if x != nil && x.SystemName != nil {
 		return *x.SystemName
 	}
@@ -408,33 +536,31 @@ func (x *RpcDescriptor) GetSystemName() string {
 }
 
 // *
-// HttpDescriptor describes a request to an HTTP API endpoint. An endpoint is uniquely identified
-// by the application it belongs to and its route. A single endpoint can support multiple HTTP methods.
-type HttpDescriptor struct {
+// RpcClientDescriptor describes a client-side remote procedure call to a server (e.g. gRPC).
+type RpcClientDescriptor struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	ApplicationName string                 `protobuf:"bytes,1,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"` // Name of the application or service to which the API endpoint belongs
-	TelemetryKey    string                 `protobuf:"bytes,2,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"`          // Lookup key for retrieving telemetry for this API endpoint
-	Route           string                 `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`                                            // The matched route template of the request's URL path. Dynamic segments in the path should be represented by placeholders
-	Method          string                 `protobuf:"bytes,4,opt,name=method,proto3" json:"method,omitempty"`                                          // The HTTP request method type, e.g. "GET"
+	ApplicationName string                 `protobuf:"bytes,1,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"` // Name of the application or service of which the RPC client is part
+	TelemetryKey    string                 `protobuf:"bytes,2,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"`          // Lookup key for retrieving telemetry for this RPC client
+	SystemName      *string                `protobuf:"bytes,3,opt,name=system_name,json=systemName,proto3,oneof" json:"system_name,omitempty"`          // Name of the used RPC system, e.g. "grpc", "dubbo"
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *HttpDescriptor) Reset() {
-	*x = HttpDescriptor{}
-	mi := &file_telemetry_entity_proto_msgTypes[4]
+func (x *RpcClientDescriptor) Reset() {
+	*x = RpcClientDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *HttpDescriptor) String() string {
+func (x *RpcClientDescriptor) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*HttpDescriptor) ProtoMessage() {}
+func (*RpcClientDescriptor) ProtoMessage() {}
 
-func (x *HttpDescriptor) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_entity_proto_msgTypes[4]
+func (x *RpcClientDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -445,35 +571,154 @@ func (x *HttpDescriptor) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use HttpDescriptor.ProtoReflect.Descriptor instead.
-func (*HttpDescriptor) Descriptor() ([]byte, []int) {
-	return file_telemetry_entity_proto_rawDescGZIP(), []int{4}
+// Deprecated: Use RpcClientDescriptor.ProtoReflect.Descriptor instead.
+func (*RpcClientDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *HttpDescriptor) GetApplicationName() string {
+func (x *RpcClientDescriptor) GetApplicationName() string {
 	if x != nil {
 		return x.ApplicationName
 	}
 	return ""
 }
 
-func (x *HttpDescriptor) GetTelemetryKey() string {
+func (x *RpcClientDescriptor) GetTelemetryKey() string {
 	if x != nil {
 		return x.TelemetryKey
 	}
 	return ""
 }
 
-func (x *HttpDescriptor) GetRoute() string {
+func (x *RpcClientDescriptor) GetSystemName() string {
+	if x != nil && x.SystemName != nil {
+		return *x.SystemName
+	}
+	return ""
+}
+
+// *
+// HttpServerDescriptor describes a server-side request to an HTTP API endpoint. An endpoint is
+// uniquely identified by the application it belongs to and its route. A single endpoint can support
+// multiple HTTP methods.
+type HttpServerDescriptor struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ApplicationName string                 `protobuf:"bytes,1,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"` // Name of the application or service to which the HTTP server belongs
+	TelemetryKey    string                 `protobuf:"bytes,2,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"`          // Lookup key for retrieving telemetry for this API endpoint
+	Route           string                 `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`                                            // The matched route template of the request's URL path. Dynamic segments in the path should be represented by placeholders
+	Method          string                 `protobuf:"bytes,4,opt,name=method,proto3" json:"method,omitempty"`                                          // The HTTP request method type, e.g. "GET"
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *HttpServerDescriptor) Reset() {
+	*x = HttpServerDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HttpServerDescriptor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HttpServerDescriptor) ProtoMessage() {}
+
+func (x *HttpServerDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HttpServerDescriptor.ProtoReflect.Descriptor instead.
+func (*HttpServerDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *HttpServerDescriptor) GetApplicationName() string {
+	if x != nil {
+		return x.ApplicationName
+	}
+	return ""
+}
+
+func (x *HttpServerDescriptor) GetTelemetryKey() string {
+	if x != nil {
+		return x.TelemetryKey
+	}
+	return ""
+}
+
+func (x *HttpServerDescriptor) GetRoute() string {
 	if x != nil {
 		return x.Route
 	}
 	return ""
 }
 
-func (x *HttpDescriptor) GetMethod() string {
+func (x *HttpServerDescriptor) GetMethod() string {
 	if x != nil {
 		return x.Method
+	}
+	return ""
+}
+
+// *
+// HttpClientDescriptor describes a client-side HTTP request to a server.
+type HttpClientDescriptor struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ApplicationName string                 `protobuf:"bytes,1,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"` // Name of the application or service of which the HTTP client is part
+	TelemetryKey    string                 `protobuf:"bytes,2,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *HttpClientDescriptor) Reset() {
+	*x = HttpClientDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HttpClientDescriptor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HttpClientDescriptor) ProtoMessage() {}
+
+func (x *HttpClientDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HttpClientDescriptor.ProtoReflect.Descriptor instead.
+func (*HttpClientDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *HttpClientDescriptor) GetApplicationName() string {
+	if x != nil {
+		return x.ApplicationName
+	}
+	return ""
+}
+
+func (x *HttpClientDescriptor) GetTelemetryKey() string {
+	if x != nil {
+		return x.TelemetryKey
 	}
 	return ""
 }
@@ -482,21 +727,26 @@ var File_telemetry_entity_proto protoreflect.FileDescriptor
 
 const file_telemetry_entity_proto_rawDesc = "" +
 	"\n" +
-	"\x16telemetry_entity.proto\"\x8c\x04\n" +
+	"\x16telemetry_entity.proto\"\x92\x06\n" +
 	"\x0fTelemetryEntity\x12,\n" +
 	"\x12landscape_token_id\x18\x01 \x01(\tR\x10landscapeTokenId\x124\n" +
 	"\x16landscape_token_secret\x18\x02 \x01(\tR\x14landscapeTokenSecret\x123\n" +
 	"\x15instrumentation_scope\x18\x03 \x01(\tR\x14instrumentationScope\x12+\n" +
-	"\x0fgit_commit_hash\x18\x04 \x01(\tH\x01R\rgitCommitHash\x88\x01\x01\x12Y\n" +
-	"\x1ageneric_service_descriptor\x18\x05 \x01(\v2\x19.GenericServiceDescriptorH\x00R\x18genericServiceDescriptor\x12:\n" +
-	"\x0fcode_descriptor\x18\x06 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptor\x127\n" +
-	"\x0erpc_descriptor\x18\a \x01(\v2\x0e.RpcDescriptorH\x00R\rrpcDescriptor\x12:\n" +
-	"\x0fhttp_descriptor\x18\b \x01(\v2\x0f.HttpDescriptorH\x00R\x0ehttpDescriptorB\x13\n" +
+	"\x0fgit_commit_hash\x18\x04 \x01(\tH\x01R\rgitCommitHash\x88\x01\x01\x12V\n" +
+	"\x19generic_entity_descriptor\x18\x05 \x01(\v2\x18.GenericEntityDescriptorH\x00R\x17genericEntityDescriptor\x12:\n" +
+	"\x0fcode_descriptor\x18\x06 \x01(\v2\x0f.CodeDescriptorH\x00R\x0ecodeDescriptor\x12F\n" +
+	"\x13database_descriptor\x18\a \x01(\v2\x13.DatabaseDescriptorH\x00R\x12databaseDescriptor\x12J\n" +
+	"\x15rpc_server_descriptor\x18\b \x01(\v2\x14.RpcServerDescriptorH\x00R\x13rpcServerDescriptor\x12J\n" +
+	"\x15rpc_client_descriptor\x18\t \x01(\v2\x14.RpcClientDescriptorH\x00R\x13rpcClientDescriptor\x12M\n" +
+	"\x16http_server_descriptor\x18\n" +
+	" \x01(\v2\x15.HttpServerDescriptorH\x00R\x14httpServerDescriptor\x12M\n" +
+	"\x16http_client_descriptor\x18\v \x01(\v2\x15.HttpClientDescriptorH\x00R\x14httpClientDescriptorB\x13\n" +
 	"\x11entity_descriptorB\x12\n" +
-	"\x10_git_commit_hash\"q\n" +
-	"\x18GenericServiceDescriptor\x122\n" +
-	"\x15service_telemetry_key\x18\x01 \x01(\tR\x13serviceTelemetryKey\x12!\n" +
-	"\fservice_name\x18\x02 \x01(\tR\vserviceName\"\xc2\x02\n" +
+	"\x10_git_commit_hash\"u\n" +
+	"\x17GenericEntityDescriptor\x12!\n" +
+	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
+	"\rtelemetry_key\x18\x03 \x01(\tR\ftelemetryKey\"\xc2\x02\n" +
 	"\x0eCodeDescriptor\x12)\n" +
 	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12,\n" +
 	"\x12file_telemetry_key\x18\x02 \x01(\tR\x10fileTelemetryKey\x12\x1b\n" +
@@ -507,8 +757,17 @@ const file_telemetry_entity_proto_rawDesc = "" +
 	"class_name\x18\x06 \x01(\tH\x00R\tclassName\x88\x01\x01\x12\x1f\n" +
 	"\blanguage\x18\a \x01(\tH\x01R\blanguage\x88\x01\x01B\r\n" +
 	"\v_class_nameB\v\n" +
-	"\t_language\"\x9a\x02\n" +
-	"\rRpcDescriptor\x12)\n" +
+	"\t_language\"\xc9\x01\n" +
+	"\x12DatabaseDescriptor\x12\x1f\n" +
+	"\vsystem_name\x18\x01 \x01(\tR\n" +
+	"systemName\x12#\n" +
+	"\rtelemetry_key\x18\x02 \x01(\tR\ftelemetryKey\x12(\n" +
+	"\rdatabase_name\x18\x03 \x01(\tH\x00R\fdatabaseName\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"table_name\x18\x04 \x01(\tH\x01R\ttableName\x88\x01\x01B\x10\n" +
+	"\x0e_database_nameB\r\n" +
+	"\v_table_name\"\xa0\x02\n" +
+	"\x13RpcServerDescriptor\x12)\n" +
 	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x122\n" +
 	"\x15service_telemetry_key\x18\x02 \x01(\tR\x13serviceTelemetryKey\x12!\n" +
 	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x120\n" +
@@ -517,12 +776,21 @@ const file_telemetry_entity_proto_rawDesc = "" +
 	"methodName\x12$\n" +
 	"\vsystem_name\x18\x06 \x01(\tH\x00R\n" +
 	"systemName\x88\x01\x01B\x0e\n" +
-	"\f_system_name\"\x8e\x01\n" +
-	"\x0eHttpDescriptor\x12)\n" +
+	"\f_system_name\"\x9b\x01\n" +
+	"\x13RpcClientDescriptor\x12)\n" +
+	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12#\n" +
+	"\rtelemetry_key\x18\x02 \x01(\tR\ftelemetryKey\x12$\n" +
+	"\vsystem_name\x18\x03 \x01(\tH\x00R\n" +
+	"systemName\x88\x01\x01B\x0e\n" +
+	"\f_system_name\"\x94\x01\n" +
+	"\x14HttpServerDescriptor\x12)\n" +
 	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12#\n" +
 	"\rtelemetry_key\x18\x02 \x01(\tR\ftelemetryKey\x12\x14\n" +
 	"\x05route\x18\x03 \x01(\tR\x05route\x12\x16\n" +
-	"\x06method\x18\x04 \x01(\tR\x06methodBAZ?github.com/ExplorViz/otel-collector/common/genproto/telemetrypbb\x06proto3"
+	"\x06method\x18\x04 \x01(\tR\x06method\"f\n" +
+	"\x14HttpClientDescriptor\x12)\n" +
+	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12#\n" +
+	"\rtelemetry_key\x18\x02 \x01(\tR\ftelemetryKeyBAZ?github.com/ExplorViz/otel-collector/common/genproto/telemetrypbb\x06proto3"
 
 var (
 	file_telemetry_entity_proto_rawDescOnce sync.Once
@@ -536,24 +804,30 @@ func file_telemetry_entity_proto_rawDescGZIP() []byte {
 	return file_telemetry_entity_proto_rawDescData
 }
 
-var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_telemetry_entity_proto_goTypes = []any{
-	(*TelemetryEntity)(nil),          // 0: TelemetryEntity
-	(*GenericServiceDescriptor)(nil), // 1: GenericServiceDescriptor
-	(*CodeDescriptor)(nil),           // 2: CodeDescriptor
-	(*RpcDescriptor)(nil),            // 3: RpcDescriptor
-	(*HttpDescriptor)(nil),           // 4: HttpDescriptor
+	(*TelemetryEntity)(nil),         // 0: TelemetryEntity
+	(*GenericEntityDescriptor)(nil), // 1: GenericEntityDescriptor
+	(*CodeDescriptor)(nil),          // 2: CodeDescriptor
+	(*DatabaseDescriptor)(nil),      // 3: DatabaseDescriptor
+	(*RpcServerDescriptor)(nil),     // 4: RpcServerDescriptor
+	(*RpcClientDescriptor)(nil),     // 5: RpcClientDescriptor
+	(*HttpServerDescriptor)(nil),    // 6: HttpServerDescriptor
+	(*HttpClientDescriptor)(nil),    // 7: HttpClientDescriptor
 }
 var file_telemetry_entity_proto_depIdxs = []int32{
-	1, // 0: TelemetryEntity.generic_service_descriptor:type_name -> GenericServiceDescriptor
+	1, // 0: TelemetryEntity.generic_entity_descriptor:type_name -> GenericEntityDescriptor
 	2, // 1: TelemetryEntity.code_descriptor:type_name -> CodeDescriptor
-	3, // 2: TelemetryEntity.rpc_descriptor:type_name -> RpcDescriptor
-	4, // 3: TelemetryEntity.http_descriptor:type_name -> HttpDescriptor
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 2: TelemetryEntity.database_descriptor:type_name -> DatabaseDescriptor
+	4, // 3: TelemetryEntity.rpc_server_descriptor:type_name -> RpcServerDescriptor
+	5, // 4: TelemetryEntity.rpc_client_descriptor:type_name -> RpcClientDescriptor
+	6, // 5: TelemetryEntity.http_server_descriptor:type_name -> HttpServerDescriptor
+	7, // 6: TelemetryEntity.http_client_descriptor:type_name -> HttpClientDescriptor
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_telemetry_entity_proto_init() }
@@ -562,20 +836,25 @@ func file_telemetry_entity_proto_init() {
 		return
 	}
 	file_telemetry_entity_proto_msgTypes[0].OneofWrappers = []any{
-		(*TelemetryEntity_GenericServiceDescriptor)(nil),
+		(*TelemetryEntity_GenericEntityDescriptor)(nil),
 		(*TelemetryEntity_CodeDescriptor)(nil),
-		(*TelemetryEntity_RpcDescriptor)(nil),
-		(*TelemetryEntity_HttpDescriptor)(nil),
+		(*TelemetryEntity_DatabaseDescriptor)(nil),
+		(*TelemetryEntity_RpcServerDescriptor)(nil),
+		(*TelemetryEntity_RpcClientDescriptor)(nil),
+		(*TelemetryEntity_HttpServerDescriptor)(nil),
+		(*TelemetryEntity_HttpClientDescriptor)(nil),
 	}
 	file_telemetry_entity_proto_msgTypes[2].OneofWrappers = []any{}
 	file_telemetry_entity_proto_msgTypes[3].OneofWrappers = []any{}
+	file_telemetry_entity_proto_msgTypes[4].OneofWrappers = []any{}
+	file_telemetry_entity_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_telemetry_entity_proto_rawDesc), len(file_telemetry_entity_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

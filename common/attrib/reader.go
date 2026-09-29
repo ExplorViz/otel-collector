@@ -2,16 +2,24 @@ package attrib
 
 import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.opentelemetry.io/collector/pdata/plog"
+	"go.opentelemetry.io/collector/pdata/pmetric"
+	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 )
 
 // A TelemetryReader groups the attributes of a telemetry unit (span, metric, log) together with its instrumentation scope
-// and resource. It provides helper methods for frequent attribute lookup operations.
+// and resource. It provides helper methods for frequently needed attribute lookup operations. If necessary, the underlying
+// telemetry signal can also be accessed.
 type TelemetryReader struct {
 	Attrs    *pcommon.Map
 	Scope    *pcommon.InstrumentationScope
 	Resource *pcommon.Resource
+
+	Span   *ptrace.Span
+	Metric *pmetric.Metric
+	Log    *plog.LogRecord
 }
 
 // StrAttrib is a convenience function that looks for a string attribute with the
@@ -36,6 +44,18 @@ func (tr TelemetryReader) ScopeStrAttrib(key attribute.Key) string {
 func (tr TelemetryReader) ResourceStrAttrib(key attribute.Key) string {
 	a, _ := tr.Resource.Attributes().Get(string(key))
 	return a.Str()
+}
+
+// HasAnyAttrKey looks through all the telemetry attributes given in [TelemetryReader.Attrs]
+// and reports whether any of the provided attribute keys are present. Note that resource and
+// scope attributes are not searched.
+func (tr TelemetryReader) HasAnyAttrKey(attrKeys []attribute.Key) bool {
+	for _, k := range attrKeys {
+		if _, ok := tr.Attrs.Get(string(k)); ok {
+			return true
+		}
+	}
+	return false
 }
 
 // LandscapeTokenID looks for an attribute specifying the ID of an ExplorViz landscape token.
