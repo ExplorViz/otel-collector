@@ -41,10 +41,10 @@ func TestParseHTTPServerTelemetry(t *testing.T) {
 	entity, err := parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.ServiceName, "example-service")
-	assert.Equal(t, entity.ScopeName, "example-scope")
-	assert.Equal(t, entity.Method, "GET")
-	assert.Equal(t, entity.Route, "/api/products/[productId]")
+	assert.Equal(t, "example-service", entity.ServiceName)
+	assert.Equal(t, "example-scope", entity.ScopeName)
+	assert.Equal(t, "GET", entity.Method)
+	assert.Equal(t, "/api/products/[productId]", entity.Route)
 	assert.NotEmpty(t, entity.TelemetryKey())
 }
 
@@ -55,10 +55,10 @@ func TestParseHTTPServerTelemetryNoMethod(t *testing.T) {
 	entity, err := parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.ServiceName, "example-service")
-	assert.Equal(t, entity.ScopeName, "example-scope")
-	assert.Equal(t, entity.Method, "")
-	assert.Equal(t, entity.Route, "/api/products/[productId]")
+	assert.Equal(t, "example-service", entity.ServiceName)
+	assert.Equal(t, "example-scope", entity.ScopeName)
+	assert.Equal(t, "", entity.Method)
+	assert.Equal(t, "/api/products/[productId]", entity.Route)
 	assert.NotEmpty(t, entity.TelemetryKey())
 }
 
@@ -70,10 +70,10 @@ func TestParseHTTPServerTelemetryURLTemplate(t *testing.T) {
 	entity, err := parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.ServiceName, "example-service")
-	assert.Equal(t, entity.ScopeName, "example-scope")
-	assert.Equal(t, entity.Method, "GET")
-	assert.Equal(t, entity.Route, "/api/products/[productId]")
+	assert.Equal(t, "example-service", entity.ServiceName)
+	assert.Equal(t, "example-scope", entity.ScopeName)
+	assert.Equal(t, "GET", entity.Method)
+	assert.Equal(t, "/api/products/[productId]", entity.Route)
 	assert.NotEmpty(t, entity.TelemetryKey())
 }
 
@@ -85,10 +85,10 @@ func TestParseHTTPServerTelemetryURLPath(t *testing.T) {
 	entity, err := parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.ServiceName, "example-service")
-	assert.Equal(t, entity.ScopeName, "example-scope")
-	assert.Equal(t, entity.Method, "GET")
-	assert.Equal(t, entity.Route, "/api/products/product123")
+	assert.Equal(t, "example-service", entity.ServiceName)
+	assert.Equal(t, "example-scope", entity.ScopeName)
+	assert.Equal(t, "GET", entity.Method)
+	assert.Equal(t, "/api/products/product123", entity.Route)
 	assert.NotEmpty(t, entity.TelemetryKey())
 
 	tr.Attrs.PutStr("url.path", "/productImages/telescope.jpg")
@@ -96,7 +96,7 @@ func TestParseHTTPServerTelemetryURLPath(t *testing.T) {
 	entity, err = parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.Route, HTTPStaticResourceRoute)
+	assert.Equal(t, HTTPStaticResourceRoute, entity.Route)
 }
 
 func TestParseHTTPServerTelemetryURLFull(t *testing.T) {
@@ -107,10 +107,10 @@ func TestParseHTTPServerTelemetryURLFull(t *testing.T) {
 	entity, err := parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.ServiceName, "example-service")
-	assert.Equal(t, entity.ScopeName, "example-scope")
-	assert.Equal(t, entity.Method, "GET")
-	assert.Equal(t, entity.Route, "/api/products/product123")
+	assert.Equal(t, "example-service", entity.ServiceName)
+	assert.Equal(t, "example-scope", entity.ScopeName)
+	assert.Equal(t, "GET", entity.Method)
+	assert.Equal(t, "/api/products/product123", entity.Route)
 	assert.NotEmpty(t, entity.TelemetryKey())
 
 	tr.Attrs.PutStr("url.full", "http://localhost:8080/productImages/telescope.jpg?q=somequerytoignore")
@@ -118,7 +118,7 @@ func TestParseHTTPServerTelemetryURLFull(t *testing.T) {
 	entity, err = parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.Route, HTTPStaticResourceRoute)
+	assert.Equal(t, HTTPStaticResourceRoute, entity.Route)
 }
 
 func TestParseHTTPServerTelemetryDeprecatedHTTPUrl(t *testing.T) {
@@ -129,10 +129,10 @@ func TestParseHTTPServerTelemetryDeprecatedHTTPUrl(t *testing.T) {
 	entity, err := parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.ServiceName, "example-service")
-	assert.Equal(t, entity.ScopeName, "example-scope")
-	assert.Equal(t, entity.Method, "GET")
-	assert.Equal(t, entity.Route, "/api/products/product123")
+	assert.Equal(t, "example-service", entity.ServiceName)
+	assert.Equal(t, "example-scope", entity.ScopeName)
+	assert.Equal(t, "GET", entity.Method)
+	assert.Equal(t, "/api/products/product123", entity.Route)
 	assert.NotEmpty(t, entity.TelemetryKey())
 
 	tr.Attrs.PutStr("http.url", "http://localhost:8080/productImages/telescope.jpg?q=somequerytoignore")
@@ -140,7 +140,7 @@ func TestParseHTTPServerTelemetryDeprecatedHTTPUrl(t *testing.T) {
 	entity, err = parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.Route, HTTPStaticResourceRoute)
+	assert.Equal(t, HTTPStaticResourceRoute, entity.Route)
 }
 
 func TestParseHTTPServerTelemetryDeprecatedHTTPTarget(t *testing.T) {
@@ -151,10 +151,10 @@ func TestParseHTTPServerTelemetryDeprecatedHTTPTarget(t *testing.T) {
 	entity, err := parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.ServiceName, "example-service")
-	assert.Equal(t, entity.ScopeName, "example-scope")
-	assert.Equal(t, entity.Method, "GET")
-	assert.Equal(t, entity.Route, "/api/products/product123")
+	assert.Equal(t, "example-service", entity.ServiceName)
+	assert.Equal(t, "example-scope", entity.ScopeName)
+	assert.Equal(t, "GET", entity.Method)
+	assert.Equal(t, "/api/products/product123", entity.Route)
 	assert.NotEmpty(t, entity.TelemetryKey())
 
 	tr.Attrs.PutStr("http.url", "/productImages/telescope.jpg?q=somequerytoignore")
@@ -162,7 +162,7 @@ func TestParseHTTPServerTelemetryDeprecatedHTTPTarget(t *testing.T) {
 	entity, err = parseHTTPServerTelemetry(tr)
 
 	assert.Nil(t, err)
-	assert.Equal(t, entity.Route, HTTPStaticResourceRoute)
+	assert.Equal(t, HTTPStaticResourceRoute, entity.Route)
 }
 
 func TestParseHTTPServerTelemetryMissingServiceName(t *testing.T) {
