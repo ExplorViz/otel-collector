@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/url"
 	"path"
+	"strings"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -181,7 +182,9 @@ func parseHTTPServerTelemetry(tr attrib.TelemetryReader) (HTTPServerEntity, erro
 		}
 		if urlPath == "" && tr.StrAttrib("http.target") != "" {
 			// Use deprecated attribute giving the path + query portions of the URL as fallback
-			urlPath, _ = pathFromFullUrl("http://example.com" + tr.StrAttrib("http.target"))
+			if parsed, err := url.Parse(tr.StrAttrib("http.target")); err == nil {
+				urlPath = "/" + strings.TrimPrefix(parsed.Path, "/")
+			}
 		}
 
 		if path.Ext(urlPath) != "" {
