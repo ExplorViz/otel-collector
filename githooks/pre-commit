@@ -36,4 +36,4 @@ if ! command -v golangci-lint &> /dev/null; then
 fi
 
 golangci-lint run ./... || { echo "There are linting issues present."; exit 1; }
-go test ./... || { echo "There are failing tests."; exit 1; }
+go test -v -timeout 60s ./... || { echo "There are failing tests."; exit 1; }
