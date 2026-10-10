@@ -23,8 +23,10 @@ func NewFactory() exporter.Factory {
 
 func createDefaultConfig() component.Config {
 	return &Config{
-		Broker: "localhost:9091",
-		Topic:  "telemetry.entities",
+		Broker:     "localhost:9091",
+		Topic:      "telemetry.entities",
+		MetricsCfg: MetricsConfig{ProduceGenericEntities: true},
+		LogsCfg:    LogsConfig{ProduceGenericEntities: true},
 	}
 }
 

@@ -20,24 +20,19 @@ import (
 )
 
 type explorVizExporter struct {
-	logger     *zap.Logger
-	client     *kgo.Client
-	seedBroker string
-	topic      string
+	logger *zap.Logger
+	client *kgo.Client
+	config Config
 }
 
 func newExplorVizExporter(cfg *Config, log *zap.Logger) explorVizExporter {
-	return explorVizExporter{
-		logger:     log,
-		seedBroker: cfg.Broker,
-		topic:      cfg.Topic,
-	}
+	return explorVizExporter{logger: log, config: *cfg}
 }
 
 func (e *explorVizExporter) start(ctx context.Context, host component.Host) error {
 	cl, err := kgo.NewClient(
-		kgo.SeedBrokers(e.seedBroker),
-		kgo.DefaultProduceTopic(e.topic),
+		kgo.SeedBrokers(e.config.Broker),
+		kgo.DefaultProduceTopic(e.config.Topic),
 	)
 	if err != nil {
 		return fmt.Errorf("unable to initialize kgo client: %v", err)
@@ -58,6 +53,12 @@ func (e *explorVizExporter) consumeReader(produceCtx context.Context, tr attrib.
 	entity, err := parsing.FromAttributes(*tr.Attrs)
 	if err != nil {
 		return fmt.Errorf("failed to reconstruct entity from descriptor map: %w", err)
+	}
+
+	if _, ok := entity.(parsing.GenericEntity); ok {
+		if (tr.Metric != nil && !e.config.MetricsCfg.ProduceGenericEntities) || (tr.Log != nil && !e.config.LogsCfg.ProduceGenericEntities) {
+			return nil
+		}
 	}
 
 	pb, err := encoding.ToProtobuf(tr, entity)

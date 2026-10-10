@@ -20,6 +20,10 @@ exporters:
   explorviz:
     broker: localhost:9091
     topic: telemetry.entities
+    metrics:
+      produce_generic_entities: true
+    logs:
+      produce_generic_entities: true
 
   clickhouse:
     endpoint: tcp://localhost:19000

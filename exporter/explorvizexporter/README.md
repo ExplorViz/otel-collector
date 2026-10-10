@@ -10,6 +10,10 @@ The exporter optionally provides the following configuration options:
 
 - `broker` (default = localhost:9091) Network endpoint of the Kafka broker to use
 - `topic` (default = telemetry.entities) Kafka topic to produce parsing results into
+- `metrics`
+    - `produce_generic_entities` (default = true): Whether to allow the metrics pipeline to produce generic entities, i.e. entities that cannot be further classified based on their attributes. Depending on the number of instrumented scopes, these can produce a lot of clutter in the visualization while potentially never being involved in any communication.
+- `logs`
+    - `produce_generic_entities` (default = true): Whether to allow the logs pipeline to produce generic entities, i.e. entities that cannot be further classified based on their attributes. Depending on the number of instrumented scopes, these can produce a lot of clutter in the visualization while potentially never being involved in any communication.
 
 ## Example
 
@@ -18,4 +22,8 @@ exporters:
     explorviz:
         broker: kafka-hostname:9092
         topic: your_topic_name
+        metrics:
+            produce_generic_entities: true
+        logs:
+            produce_generic_entities: true
 ```
