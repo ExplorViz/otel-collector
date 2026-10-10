@@ -5,8 +5,10 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
+	"fmt"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -56,6 +58,26 @@ func (p *parsingProcessor) Start(ctx context.Context, host component.Host) error
 	return nil
 }
 
+func (p *parsingProcessor) processReader(tr attrib.TelemetryReader) error {
+	if err := p.validate(tr); err != nil {
+		return fmt.Errorf("received invalid reader: %w", err)
+	}
+
+	entity, err := parsing.ParseTelemetry(tr)
+	if err != nil {
+		return fmt.Errorf("failed to parse reader: %w", err)
+	}
+
+	entity.ToAttributes(tr.Attrs)
+	buf := make([]byte, 8)
+	binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.ID()))
+	tr.Attrs.PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), hex.EncodeToString(buf))
+	binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.TelemetryKey()))
+	tr.Attrs.PutStr(string(attrib.ExplorVizAttributes.TelemetryKey.Key), hex.EncodeToString(buf))
+
+	return nil
+}
+
 func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) (ptrace.Traces, error) {
 	for i := 0; i < td.ResourceSpans().Len(); i++ {
 		rs := td.ResourceSpans().At(i)
@@ -74,23 +96,10 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 					Span:     &span,
 				}
 
-				if err := p.validate(tr); err != nil {
-					p.logger.Debug("received invalid span", zap.Error(err))
-					continue
-				}
-
-				entity, err := parsing.ParseTelemetry(tr)
+				err := p.processReader(tr)
 				if err != nil {
-					p.logger.Debug("failed to parse span", zap.Error(err))
-					continue
+					p.logger.Debug("failed to process span", zap.Error(err))
 				}
-
-				entity.ToAttributes(&attrs)
-				buf := make([]byte, 8)
-				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.ID()))
-				attrs.PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), hex.EncodeToString(buf))
-				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.TelemetryKey()))
-				attrs.PutStr(string(attrib.ExplorVizAttributes.TelemetryKey.Key), hex.EncodeToString(buf))
 			}
 		}
 	}
@@ -100,12 +109,61 @@ func (p *parsingProcessor) processTraces(ctx context.Context, td ptrace.Traces) 
 func (p *parsingProcessor) processMetrics(ctx context.Context, md pmetric.Metrics) (pmetric.Metrics, error) {
 	for i := 0; i < md.ResourceMetrics().Len(); i++ {
 		rm := md.ResourceMetrics().At(i)
+		res := rm.Resource()
 		for j := 0; j < rm.ScopeMetrics().Len(); j++ {
 			sm := rm.ScopeMetrics().At(j)
+			scope := sm.Scope()
 			for k := 0; k < sm.Metrics().Len(); k++ {
 				m := sm.Metrics().At(k)
-				_ = m
-				// TODO
+
+				getReader := func(attrs pcommon.Map) attrib.TelemetryReader {
+					return attrib.TelemetryReader{
+						Attrs:    &attrs,
+						Scope:    &scope,
+						Resource: &res,
+						Metric:   &m,
+					}
+				}
+
+				switch m.Type() {
+				case pmetric.MetricTypeGauge:
+					for l := 0; l < m.Gauge().DataPoints().Len(); l++ {
+						dp := m.Gauge().DataPoints().At(l)
+						tr := getReader(dp.Attributes())
+						err := p.processReader(tr)
+						if err != nil {
+							p.logger.Debug("failed to process gauge metric datapoint", zap.Error(err))
+						}
+					}
+
+				case pmetric.MetricTypeSum:
+					for l := 0; l < m.Sum().DataPoints().Len(); l++ {
+						dp := m.Sum().DataPoints().At(l)
+						tr := getReader(dp.Attributes())
+						err := p.processReader(tr)
+						if err != nil {
+							p.logger.Debug("failed to process sum metric datapoint", zap.Error(err))
+						}
+					}
+				case pmetric.MetricTypeHistogram:
+					for l := 0; l < m.Histogram().DataPoints().Len(); l++ {
+						dp := m.Histogram().DataPoints().At(l)
+						tr := getReader(dp.Attributes())
+						err := p.processReader(tr)
+						if err != nil {
+							p.logger.Debug("failed to process histogram metric datapoint", zap.Error(err))
+						}
+					}
+				case pmetric.MetricTypeExponentialHistogram:
+					for l := 0; l < m.ExponentialHistogram().DataPoints().Len(); l++ {
+						dp := m.ExponentialHistogram().DataPoints().At(l)
+						tr := getReader(dp.Attributes())
+						err := p.processReader(tr)
+						if err != nil {
+							p.logger.Debug("failed to process exponential histogram metric datapoint", zap.Error(err))
+						}
+					}
+				}
 			}
 		}
 	}
@@ -130,23 +188,10 @@ func (p *parsingProcessor) processLogs(ctx context.Context, ld plog.Logs) (plog.
 					Log:      &log,
 				}
 
-				if err := p.validate(tr); err != nil {
-					p.logger.Debug("received invalid log", zap.Error(err))
-					continue
-				}
-
-				entity, err := parsing.ParseTelemetry(tr)
+				err := p.processReader(tr)
 				if err != nil {
-					p.logger.Debug("failed to parse log", zap.Error(err))
-					continue
+					p.logger.Debug("failed to process log", zap.Error(err))
 				}
-
-				entity.ToAttributes(&attrs)
-				buf := make([]byte, 8)
-				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.ID()))
-				attrs.PutStr(string(attrib.ExplorVizAttributes.EntityID.Key), hex.EncodeToString(buf))
-				binary.BigEndian.PutUint64(buf, xxhash.Sum64String(entity.TelemetryKey()))
-				attrs.PutStr(string(attrib.ExplorVizAttributes.TelemetryKey.Key), hex.EncodeToString(buf))
 			}
 		}
 	}

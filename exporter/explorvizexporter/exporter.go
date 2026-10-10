@@ -7,6 +7,7 @@ import (
 
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -53,6 +54,30 @@ func (e *explorVizExporter) shutdown(ctx context.Context) error {
 	return nil
 }
 
+func (e *explorVizExporter) consumeReader(produceCtx context.Context, tr attrib.TelemetryReader, promise func(r *kgo.Record, err error)) error {
+	entity, err := parsing.FromAttributes(*tr.Attrs)
+	if err != nil {
+		return fmt.Errorf("failed to reconstruct entity from descriptor map: %w", err)
+	}
+
+	pb, err := encoding.ToProtobuf(tr, entity)
+	if err != nil {
+		return fmt.Errorf("failed to convert to protobuf message: %w", err)
+	}
+
+	out, err := proto.Marshal(pb)
+	if err != nil {
+		return fmt.Errorf("failed to encode protobuf: %w", err)
+	}
+
+	e.client.Produce(produceCtx, &kgo.Record{
+		Key:   []byte(pb.GetLandscapeTokenId()),
+		Value: out,
+	}, promise)
+
+	return nil
+}
+
 func (e *explorVizExporter) consumeTraces(ctx context.Context, td ptrace.Traces) error {
 	var (
 		wg       sync.WaitGroup
@@ -90,12 +115,6 @@ loop:
 				scope := ss.Scope()
 				res := rs.Resource()
 
-				entity, err := parsing.FromAttributes(attrs)
-				if err != nil {
-					e.logger.Warn("failed to reconstruct entity from descriptor map, skipping export", zap.Error(err))
-					continue
-				}
-
 				tr := attrib.TelemetryReader{
 					Attrs:    &attrs,
 					Scope:    &scope,
@@ -103,23 +122,13 @@ loop:
 					Span:     &span,
 				}
 
-				pb, err := encoding.ToProtobuf(tr, entity)
+				err := e.consumeReader(produceCtx, tr, promise)
 				if err != nil {
-					e.logger.Warn("failed to convert to protobuf message, skipping export", zap.Error(err))
-					continue
-				}
-
-				out, err := proto.Marshal(pb)
-				if err != nil {
-					e.logger.Warn("failed to encode protobuf, skipping export", zap.Error(err))
+					e.logger.Warn("skipping entity export for span", zap.Error(err))
 					continue
 				}
 
 				wg.Add(1)
-				e.client.Produce(produceCtx, &kgo.Record{
-					Key:   []byte(pb.GetLandscapeTokenId()),
-					Value: out,
-				}, promise)
 			}
 		}
 	}
@@ -151,8 +160,10 @@ func (e *explorVizExporter) consumeMetrics(ctx context.Context, md pmetric.Metri
 loop:
 	for i := 0; i < md.ResourceMetrics().Len(); i++ {
 		rm := md.ResourceMetrics().At(i)
+		res := rm.Resource()
 		for j := 0; j < rm.ScopeMetrics().Len(); j++ {
 			sm := rm.ScopeMetrics().At(j)
+			scope := sm.Scope()
 			for k := 0; k < sm.Metrics().Len(); k++ {
 				select {
 				case <-produceCtx.Done():
@@ -160,8 +171,64 @@ loop:
 				default:
 				}
 
-				// TODO
-				_ = promise
+				m := sm.Metrics().At(k)
+
+				getReader := func(attrs pcommon.Map) attrib.TelemetryReader {
+					return attrib.TelemetryReader{
+						Attrs:    &attrs,
+						Scope:    &scope,
+						Resource: &res,
+						Metric:   &m,
+					}
+				}
+
+				switch m.Type() {
+				case pmetric.MetricTypeGauge:
+					for l := 0; l < m.Gauge().DataPoints().Len(); l++ {
+						dp := m.Gauge().DataPoints().At(l)
+						tr := getReader(dp.Attributes())
+						err := e.consumeReader(produceCtx, tr, promise)
+						if err != nil {
+							e.logger.Warn("skipping entity export for gauge datapoint", zap.Error(err))
+							continue
+						}
+						wg.Add(1)
+					}
+
+				case pmetric.MetricTypeSum:
+					for l := 0; l < m.Sum().DataPoints().Len(); l++ {
+						dp := m.Sum().DataPoints().At(l)
+						tr := getReader(dp.Attributes())
+						err := e.consumeReader(produceCtx, tr, promise)
+						if err != nil {
+							e.logger.Warn("skipping entity export for sum datapoint", zap.Error(err))
+							continue
+						}
+						wg.Add(1)
+					}
+				case pmetric.MetricTypeHistogram:
+					for l := 0; l < m.Histogram().DataPoints().Len(); l++ {
+						dp := m.Histogram().DataPoints().At(l)
+						tr := getReader(dp.Attributes())
+						err := e.consumeReader(produceCtx, tr, promise)
+						if err != nil {
+							e.logger.Warn("skipping entity export for histogram datapoint", zap.Error(err))
+							continue
+						}
+						wg.Add(1)
+					}
+				case pmetric.MetricTypeExponentialHistogram:
+					for l := 0; l < m.ExponentialHistogram().DataPoints().Len(); l++ {
+						dp := m.ExponentialHistogram().DataPoints().At(l)
+						tr := getReader(dp.Attributes())
+						err := e.consumeReader(produceCtx, tr, promise)
+						if err != nil {
+							e.logger.Warn("skipping entity export for exponential histogram datapoint", zap.Error(err))
+							continue
+						}
+						wg.Add(1)
+					}
+				}
 			}
 		}
 	}
@@ -207,12 +274,6 @@ loop:
 				scope := sl.Scope()
 				res := rl.Resource()
 
-				entity, err := parsing.FromAttributes(attrs)
-				if err != nil {
-					e.logger.Warn("failed to reconstruct entity from descriptor map, skipping export", zap.Error(err))
-					continue
-				}
-
 				tr := attrib.TelemetryReader{
 					Attrs:    &attrs,
 					Scope:    &scope,
@@ -220,23 +281,13 @@ loop:
 					Log:      &log,
 				}
 
-				pb, err := encoding.ToProtobuf(tr, entity)
+				err := e.consumeReader(produceCtx, tr, promise)
 				if err != nil {
-					e.logger.Warn("failed to convert to protobuf message, skipping export", zap.Error(err))
-					continue
-				}
-
-				out, err := proto.Marshal(pb)
-				if err != nil {
-					e.logger.Warn("failed to encode protobuf, skipping export", zap.Error(err))
+					e.logger.Warn("skipping entity export for log", zap.Error(err))
 					continue
 				}
 
 				wg.Add(1)
-				e.client.Produce(produceCtx, &kgo.Record{
-					Key:   []byte(pb.GetLandscapeTokenId()),
-					Value: out,
-				}, promise)
 			}
 		}
 	}
