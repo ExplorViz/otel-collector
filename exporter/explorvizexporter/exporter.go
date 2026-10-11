@@ -56,8 +56,11 @@ func (e *explorVizExporter) consumeReader(produceCtx context.Context, tr attrib.
 	}
 
 	if _, ok := entity.(parsing.GenericEntity); ok {
-		if (tr.Metric != nil && !e.config.MetricsCfg.ProduceGenericEntities) || (tr.Log != nil && !e.config.LogsCfg.ProduceGenericEntities) {
-			return nil
+		if tr.Metric != nil && !e.config.MetricsCfg.ProduceGenericEntities {
+			return fmt.Errorf("producing generic entities is disabled for metrics")
+		}
+		if tr.Log != nil && !e.config.LogsCfg.ProduceGenericEntities {
+			return fmt.Errorf("producing generic entities is disabled for logs")
 		}
 	}
 
