@@ -44,6 +44,9 @@ var ExplorVizAttributes = struct {
 	HTTPRoute  ExplorVizAttribute
 	HTTPMethod ExplorVizAttribute
 
+	MessagingSystemName      ExplorVizAttribute
+	MessagingDestinationName ExplorVizAttribute
+
 	GenericEntityName ExplorVizAttribute
 }{
 	LandscapeTokenID:     ExplorVizAttribute{Key: "explorviz.token.id", DefaultValue: pcommon.NewValueStr("mytokenvalue")},
@@ -72,6 +75,9 @@ var ExplorVizAttributes = struct {
 
 	HTTPRoute:  ExplorVizAttribute{Key: "explorviz.http.route", DefaultValue: pcommon.NewValueStr("/unknown-route")},
 	HTTPMethod: ExplorVizAttribute{Key: "explorviz.http.method", DefaultValue: pcommon.NewValueStr("unknown-method")},
+
+	MessagingSystemName:      ExplorVizAttribute{Key: "explorviz.messaging.system", DefaultValue: pcommon.NewValueStr("unknown-messaging-system")},
+	MessagingDestinationName: ExplorVizAttribute{Key: "explorviz.messaging.destination", DefaultValue: pcommon.NewValueStr("unknown-messaging-destination")},
 
 	GenericEntityName: ExplorVizAttribute{Key: "explorviz.genericentity.name", DefaultValue: pcommon.NewValueStr("unknown-name")},
 }

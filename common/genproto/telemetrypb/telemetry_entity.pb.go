@@ -42,6 +42,7 @@ type TelemetryEntity struct {
 	//	*TelemetryEntity_RpcClientDescriptor
 	//	*TelemetryEntity_HttpServerDescriptor
 	//	*TelemetryEntity_HttpClientDescriptor
+	//	*TelemetryEntity_MessagingDescriptor
 	EntityDescriptor isTelemetryEntity_EntityDescriptor `protobuf_oneof:"entity_descriptor"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -175,6 +176,15 @@ func (x *TelemetryEntity) GetHttpClientDescriptor() *HttpClientDescriptor {
 	return nil
 }
 
+func (x *TelemetryEntity) GetMessagingDescriptor() *MessagingDescriptor {
+	if x != nil {
+		if x, ok := x.EntityDescriptor.(*TelemetryEntity_MessagingDescriptor); ok {
+			return x.MessagingDescriptor
+		}
+	}
+	return nil
+}
+
 type isTelemetryEntity_EntityDescriptor interface {
 	isTelemetryEntity_EntityDescriptor()
 }
@@ -207,6 +217,10 @@ type TelemetryEntity_HttpClientDescriptor struct {
 	HttpClientDescriptor *HttpClientDescriptor `protobuf:"bytes,11,opt,name=http_client_descriptor,json=httpClientDescriptor,proto3,oneof"`
 }
 
+type TelemetryEntity_MessagingDescriptor struct {
+	MessagingDescriptor *MessagingDescriptor `protobuf:"bytes,12,opt,name=messaging_descriptor,json=messagingDescriptor,proto3,oneof"`
+}
+
 func (*TelemetryEntity_GenericEntityDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 func (*TelemetryEntity_CodeDescriptor) isTelemetryEntity_EntityDescriptor() {}
@@ -220,6 +234,8 @@ func (*TelemetryEntity_RpcClientDescriptor) isTelemetryEntity_EntityDescriptor()
 func (*TelemetryEntity_HttpServerDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 func (*TelemetryEntity_HttpClientDescriptor) isTelemetryEntity_EntityDescriptor() {}
+
+func (*TelemetryEntity_MessagingDescriptor) isTelemetryEntity_EntityDescriptor() {}
 
 // *
 // GenericEntityDescriptor describes an entity for which no information apart from the service name
@@ -723,11 +739,73 @@ func (x *HttpClientDescriptor) GetTelemetryKey() string {
 	return ""
 }
 
+// *
+// MessagingDescriptor describes a message destination (e.g. topic) within a message broker system (e.g. Kafka).
+type MessagingDescriptor struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	SystemName      string                 `protobuf:"bytes,1,opt,name=system_name,json=systemName,proto3" json:"system_name,omitempty"`                // Name of the message broker system (e.g. "kafka")
+	DestinationName string                 `protobuf:"bytes,2,opt,name=destination_name,json=destinationName,proto3" json:"destination_name,omitempty"` // Name or template of the message destination (e.g. topic, queue name) within the system
+	TelemetryKey    string                 `protobuf:"bytes,3,opt,name=telemetry_key,json=telemetryKey,proto3" json:"telemetry_key,omitempty"`          // Lookup key for retrieving telemetry for this message destination
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *MessagingDescriptor) Reset() {
+	*x = MessagingDescriptor{}
+	mi := &file_telemetry_entity_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MessagingDescriptor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MessagingDescriptor) ProtoMessage() {}
+
+func (x *MessagingDescriptor) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_entity_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MessagingDescriptor.ProtoReflect.Descriptor instead.
+func (*MessagingDescriptor) Descriptor() ([]byte, []int) {
+	return file_telemetry_entity_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *MessagingDescriptor) GetSystemName() string {
+	if x != nil {
+		return x.SystemName
+	}
+	return ""
+}
+
+func (x *MessagingDescriptor) GetDestinationName() string {
+	if x != nil {
+		return x.DestinationName
+	}
+	return ""
+}
+
+func (x *MessagingDescriptor) GetTelemetryKey() string {
+	if x != nil {
+		return x.TelemetryKey
+	}
+	return ""
+}
+
 var File_telemetry_entity_proto protoreflect.FileDescriptor
 
 const file_telemetry_entity_proto_rawDesc = "" +
 	"\n" +
-	"\x16telemetry_entity.proto\"\x92\x06\n" +
+	"\x16telemetry_entity.proto\"\xdd\x06\n" +
 	"\x0fTelemetryEntity\x12,\n" +
 	"\x12landscape_token_id\x18\x01 \x01(\tR\x10landscapeTokenId\x124\n" +
 	"\x16landscape_token_secret\x18\x02 \x01(\tR\x14landscapeTokenSecret\x123\n" +
@@ -740,7 +818,8 @@ const file_telemetry_entity_proto_rawDesc = "" +
 	"\x15rpc_client_descriptor\x18\t \x01(\v2\x14.RpcClientDescriptorH\x00R\x13rpcClientDescriptor\x12M\n" +
 	"\x16http_server_descriptor\x18\n" +
 	" \x01(\v2\x15.HttpServerDescriptorH\x00R\x14httpServerDescriptor\x12M\n" +
-	"\x16http_client_descriptor\x18\v \x01(\v2\x15.HttpClientDescriptorH\x00R\x14httpClientDescriptorB\x13\n" +
+	"\x16http_client_descriptor\x18\v \x01(\v2\x15.HttpClientDescriptorH\x00R\x14httpClientDescriptor\x12I\n" +
+	"\x14messaging_descriptor\x18\f \x01(\v2\x14.MessagingDescriptorH\x00R\x13messagingDescriptorB\x13\n" +
 	"\x11entity_descriptorB\x12\n" +
 	"\x10_git_commit_hash\"u\n" +
 	"\x17GenericEntityDescriptor\x12!\n" +
@@ -790,7 +869,12 @@ const file_telemetry_entity_proto_rawDesc = "" +
 	"\x06method\x18\x04 \x01(\tR\x06method\"f\n" +
 	"\x14HttpClientDescriptor\x12)\n" +
 	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12#\n" +
-	"\rtelemetry_key\x18\x02 \x01(\tR\ftelemetryKeyBAZ?github.com/ExplorViz/otel-collector/common/genproto/telemetrypbb\x06proto3"
+	"\rtelemetry_key\x18\x02 \x01(\tR\ftelemetryKey\"\x86\x01\n" +
+	"\x13MessagingDescriptor\x12\x1f\n" +
+	"\vsystem_name\x18\x01 \x01(\tR\n" +
+	"systemName\x12)\n" +
+	"\x10destination_name\x18\x02 \x01(\tR\x0fdestinationName\x12#\n" +
+	"\rtelemetry_key\x18\x03 \x01(\tR\ftelemetryKeyBAZ?github.com/ExplorViz/otel-collector/common/genproto/telemetrypbb\x06proto3"
 
 var (
 	file_telemetry_entity_proto_rawDescOnce sync.Once
@@ -804,7 +888,7 @@ func file_telemetry_entity_proto_rawDescGZIP() []byte {
 	return file_telemetry_entity_proto_rawDescData
 }
 
-var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_telemetry_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_telemetry_entity_proto_goTypes = []any{
 	(*TelemetryEntity)(nil),         // 0: TelemetryEntity
 	(*GenericEntityDescriptor)(nil), // 1: GenericEntityDescriptor
@@ -814,6 +898,7 @@ var file_telemetry_entity_proto_goTypes = []any{
 	(*RpcClientDescriptor)(nil),     // 5: RpcClientDescriptor
 	(*HttpServerDescriptor)(nil),    // 6: HttpServerDescriptor
 	(*HttpClientDescriptor)(nil),    // 7: HttpClientDescriptor
+	(*MessagingDescriptor)(nil),     // 8: MessagingDescriptor
 }
 var file_telemetry_entity_proto_depIdxs = []int32{
 	1, // 0: TelemetryEntity.generic_entity_descriptor:type_name -> GenericEntityDescriptor
@@ -823,11 +908,12 @@ var file_telemetry_entity_proto_depIdxs = []int32{
 	5, // 4: TelemetryEntity.rpc_client_descriptor:type_name -> RpcClientDescriptor
 	6, // 5: TelemetryEntity.http_server_descriptor:type_name -> HttpServerDescriptor
 	7, // 6: TelemetryEntity.http_client_descriptor:type_name -> HttpClientDescriptor
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	8, // 7: TelemetryEntity.messaging_descriptor:type_name -> MessagingDescriptor
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_telemetry_entity_proto_init() }
@@ -843,6 +929,7 @@ func file_telemetry_entity_proto_init() {
 		(*TelemetryEntity_RpcClientDescriptor)(nil),
 		(*TelemetryEntity_HttpServerDescriptor)(nil),
 		(*TelemetryEntity_HttpClientDescriptor)(nil),
+		(*TelemetryEntity_MessagingDescriptor)(nil),
 	}
 	file_telemetry_entity_proto_msgTypes[2].OneofWrappers = []any{}
 	file_telemetry_entity_proto_msgTypes[3].OneofWrappers = []any{}
@@ -854,7 +941,7 @@ func file_telemetry_entity_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_telemetry_entity_proto_rawDesc), len(file_telemetry_entity_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

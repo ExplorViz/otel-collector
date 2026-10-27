@@ -65,6 +65,7 @@ var parserChain = []TelemetryParser{
 	ParseDatabaseTelemetry,
 	ParseRPCTelemetry,
 	ParseHTTPTelemetry,
+	ParseMessagingTelemetry,
 	ParseGenericTelemetry,
 }
 
@@ -111,6 +112,8 @@ func FromAttributes(m pcommon.Map) (Entity, error) {
 		se, err = httpServerEntityFromAttribs(m)
 	case HTTPClientEntityType:
 		se, err = httpClientEntityFromAttribs(m)
+	case MessagingEntityType:
+		se, err = messagingEntityFromAttribs(m)
 	case GenericEntityType:
 		se, err = genericEntityFromAttribs(m)
 	default:
