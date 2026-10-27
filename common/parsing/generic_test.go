@@ -7,7 +7,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 )
 
-func TestToAttributes(t *testing.T) {
+func TestGenericEntityToAttributes(t *testing.T) {
 	before := GenericEntity{
 		ServiceName: "myService",
 		ScopeName:   "prefix/myScope",

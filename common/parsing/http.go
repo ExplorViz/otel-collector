@@ -24,6 +24,12 @@ const HTTPServerEntityType string = "httpserver"
 // cardinality of resources in more complex applications.
 const HTTPStaticResourceRoute = "Static Resource"
 
+// When parsing an HTTP request that only specifies the full URL path but not
+// a route template and a path's segment is detected to be of high-cardinality
+// (e.g., a product ID) according to heuristics, then this string will be used
+// as a replacement for such segments to prevent creating too many endpoints.
+const highCardinalityPathSegmentReplacement = "[param]"
+
 // An HTTPServerEntity represents a specific request route for a server's HTTP API.
 type HTTPServerEntity struct {
 	// Name of the service or application to which this API endpoint belongs.
@@ -192,7 +198,7 @@ func parseHTTPServerTelemetry(tr attrib.TelemetryReader) (HTTPServerEntity, erro
 			// Since these paths might be high cardinality, we group them under a single route
 			route = HTTPStaticResourceRoute
 		} else {
-			route = urlPath
+			route = sanitizePathSegments(urlPath, highCardinalityPathSegmentReplacement)
 		}
 	}
 	if route == "" {
@@ -264,4 +270,28 @@ func pathFromFullUrl(fullUrl string) (string, error) {
 	}
 
 	return parsed.Path, nil
+}
+
+// sanitizePathSegments iterates all segments that are separated by "/" of the input string
+// and replaces any segment that contains at least one number with the provided replacement string.
+// The only exception to this is segments where the only occurrence of a number is a single digit
+// which is preceeded by "v" or "V". This is to avoid replacing segments like "v1" which commmonly
+// appear in API routes.
+func sanitizePathSegments(urlPath string, replacement string) string {
+	segments := strings.Split(urlPath, "/")
+
+	for i, seg := range segments {
+		for j := 0; j < len(seg); j++ {
+			c := seg[j]
+
+			if c >= '0' && c <= '9' {
+				if j == 0 || (seg[j-1] != 'v' && seg[j-1] != 'V') {
+					segments[i] = replacement
+					break
+				}
+			}
+		}
+	}
+
+	return strings.Join(segments, "/")
 }
