@@ -86,6 +86,14 @@ func ToProtobuf(tr attrib.TelemetryReader, entity parsing.Entity) (*telemetrypb.
 				TelemetryKey:    telemetryKey,
 			},
 		}
+	case parsing.MessagingEntity:
+		te.EntityDescriptor = &telemetrypb.TelemetryEntity_MessagingDescriptor{
+			MessagingDescriptor: &telemetrypb.MessagingDescriptor{
+				SystemName:      e.SystemName,
+				DestinationName: e.DestinationName,
+				TelemetryKey:    telemetryKey,
+			},
+		}
 	case parsing.GenericEntity:
 		te.EntityDescriptor = &telemetrypb.TelemetryEntity_GenericEntityDescriptor{
 			GenericEntityDescriptor: &telemetrypb.GenericEntityDescriptor{
