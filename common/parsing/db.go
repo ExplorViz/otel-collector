@@ -2,6 +2,7 @@ package parsing
 
 import (
 	"errors"
+	"strings"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
@@ -76,6 +77,9 @@ func ParseDatabaseTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 		// Look for deprecated attribute as fallback
 		system = tr.StrAttrib("db.system")
 	}
+	if system == "" && tr.Metric != nil {
+		system = dbSystemFromMetricName(tr.Metric.Name())
+	}
 	if system == "" {
 		return DatabaseEntity{}, errors.New("db parser: empty or missing DBMS name attribute")
 	}
@@ -97,4 +101,17 @@ func ParseDatabaseTelemetry(tr attrib.TelemetryReader) (Entity, error) {
 		DatabaseName: db,
 		TableName:    table,
 	}, nil
+}
+
+func dbSystemFromMetricName(metricName string) string {
+	if strings.HasPrefix(metricName, "redis") {
+		return "redis"
+	}
+	if strings.HasPrefix(metricName, "cassandra") {
+		return "cassandra"
+	}
+	if strings.HasPrefix(metricName, "elasticsearch") {
+		return "elasticsearch"
+	}
+	return ""
 }
