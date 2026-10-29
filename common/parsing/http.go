@@ -155,7 +155,10 @@ func httpClientEntityFromAttribs(m pcommon.Map) (HTTPClientEntity, error) {
 //
 // [OTel semconv HTTP attributes]: https://opentelemetry.io/docs/specs/semconv/registry/attributes/http/
 func ParseHTTPTelemetry(tr attrib.TelemetryReader) (Entity, error) {
-	if tr.Span != nil && tr.Span.Kind() == ptrace.SpanKindClient {
+	isClient := (tr.Span != nil && tr.Span.Kind() == ptrace.SpanKindClient) ||
+		(tr.Metric != nil && strings.Contains(tr.Metric.Name(), "client"))
+
+	if isClient {
 		slog.Debug("http parser: encountered client span, attempting to parse as client")
 		return parseHTTPClientTelemetry(tr)
 	}
@@ -252,7 +255,7 @@ func isHTTPRequest(tr attrib.TelemetryReader) bool {
 		attribute.Key("http.status_code"),
 		attribute.Key("http.target"),
 		attribute.Key("http.url"),
-	})
+	}) || (tr.Metric != nil && strings.HasPrefix(tr.Metric.Name(), "http.client"))
 }
 
 func pathFromFullUrl(fullUrl string) (string, error) {

@@ -154,7 +154,10 @@ func rpcClientEntityFromAttribs(m pcommon.Map) (RPCClientEntity, error) {
 //
 // [OTel semconv RPC attributes]: https://opentelemetry.io/docs/specs/semconv/registry/attributes/rpc/
 func ParseRPCTelemetry(tr attrib.TelemetryReader) (Entity, error) {
-	if tr.Span != nil && tr.Span.Kind() == ptrace.SpanKindClient {
+	isClient := (tr.Span != nil && tr.Span.Kind() == ptrace.SpanKindClient) ||
+		(tr.Metric != nil && strings.Contains(tr.Metric.Name(), "client"))
+
+	if isClient {
 		slog.Debug("rpc parser: encountered client span, attempting to parse as client")
 		return parseRPCClientTelemetry(tr)
 	}
@@ -241,7 +244,7 @@ func parseRPCClientTelemetry(tr attrib.TelemetryReader) (RPCClientEntity, error)
 		attribute.Key("rpc.message.id"),
 		attribute.Key("rpc.service"),
 		attribute.Key("rpc.system"),
-	})
+	}) || (tr.Metric != nil && strings.HasPrefix(tr.Metric.Name(), "rpc.client"))
 
 	if !isRPCCall {
 		return RPCClientEntity{}, errors.New("rpc client parser: no identifying rpc attributes found")
