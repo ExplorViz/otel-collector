@@ -2,7 +2,17 @@
 
 The ExplorViz OTel Collector is a custom distribution of the [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/). It receives incoming telemetry data from OpenTelemetry-compliant agents and interprets it for the purpose of visualization using custom components. The processed telemetry data is exported using a pre-defined set of exporters, including a custom Kafka-based exporter for communication with the [landscape-service](https://github.com/ExplorViz/landscape-service/).
 
-For development instructions, continue reading below. If you just want to run ExplorViz locally, refer to our [Deployment repository](https://github.com/ExplorViz/deployment/) instead.
+For an overview of the Collector's architecture as well as development instructions, continue reading below. If you just want to run ExplorViz locally, refer to our [Deployment repository](https://github.com/ExplorViz/deployment/) instead.
+
+## Architecture
+
+![Collector architecture diagram](resources/architecture-diagram.png)
+
+Our custom collector makes use of existing components for the OTel Collector (OTLP receiver, ClickHouse exporter) as well as three custom components:
+
+- [ExplorViz Parsing Processor](./processor/explorvizparsingprocessor/README.md)
+- [ExplorViz Exporter](./exporter/explorvizexporter/README.md)
+- [Landscape Token Validatior Extension](./extension/explorviztokenvalidator/README.md)
 
 ## Development instructions
 
