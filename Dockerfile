@@ -1,7 +1,7 @@
-FROM alpine:3.19 AS certs
+FROM alpine:3.24 AS certs
 RUN apk --update add ca-certificates
 
-FROM golang:1.25.0 AS build-stage
+FROM golang:1.27 AS build-stage
 WORKDIR /build
 
 COPY . .
@@ -21,4 +21,4 @@ COPY --chmod=755 --from=build-stage /build/cmd/explorviz-otelcol /otelcol
 ENTRYPOINT ["/otelcol/explorviz-otelcol"]
 CMD ["--config", "/otelcol/collector-config.yaml"]
 
-EXPOSE 4317 4318 12001 55678
+EXPOSE 4317 4318 12001
