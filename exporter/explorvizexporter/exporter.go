@@ -126,13 +126,12 @@ loop:
 					Span:     &span,
 				}
 
-				err := e.consumeReader(produceCtx, tr, promise)
-				if err != nil {
+				wg.Add(1)
+				if err := e.consumeReader(produceCtx, tr, promise); err != nil {
 					e.logger.Warn("skipping entity export for span", zap.Error(err))
+					wg.Done()
 					continue
 				}
-
-				wg.Add(1)
 			}
 		}
 	}
@@ -191,46 +190,46 @@ loop:
 					for l := 0; l < m.Gauge().DataPoints().Len(); l++ {
 						dp := m.Gauge().DataPoints().At(l)
 						tr := getReader(dp.Attributes())
-						err := e.consumeReader(produceCtx, tr, promise)
-						if err != nil {
+						wg.Add(1)
+						if err := e.consumeReader(produceCtx, tr, promise); err != nil {
 							e.logger.Warn("skipping entity export for gauge datapoint", zap.Error(err))
+							wg.Done()
 							continue
 						}
-						wg.Add(1)
 					}
 
 				case pmetric.MetricTypeSum:
 					for l := 0; l < m.Sum().DataPoints().Len(); l++ {
 						dp := m.Sum().DataPoints().At(l)
 						tr := getReader(dp.Attributes())
-						err := e.consumeReader(produceCtx, tr, promise)
-						if err != nil {
+						wg.Add(1)
+						if err := e.consumeReader(produceCtx, tr, promise); err != nil {
 							e.logger.Warn("skipping entity export for sum datapoint", zap.Error(err))
+							wg.Done()
 							continue
 						}
-						wg.Add(1)
 					}
 				case pmetric.MetricTypeHistogram:
 					for l := 0; l < m.Histogram().DataPoints().Len(); l++ {
 						dp := m.Histogram().DataPoints().At(l)
 						tr := getReader(dp.Attributes())
-						err := e.consumeReader(produceCtx, tr, promise)
-						if err != nil {
+						wg.Add(1)
+						if err := e.consumeReader(produceCtx, tr, promise); err != nil {
 							e.logger.Warn("skipping entity export for histogram datapoint", zap.Error(err))
+							wg.Done()
 							continue
 						}
-						wg.Add(1)
 					}
 				case pmetric.MetricTypeExponentialHistogram:
 					for l := 0; l < m.ExponentialHistogram().DataPoints().Len(); l++ {
 						dp := m.ExponentialHistogram().DataPoints().At(l)
 						tr := getReader(dp.Attributes())
-						err := e.consumeReader(produceCtx, tr, promise)
-						if err != nil {
+						wg.Add(1)
+						if err := e.consumeReader(produceCtx, tr, promise); err != nil {
 							e.logger.Warn("skipping entity export for exponential histogram datapoint", zap.Error(err))
+							wg.Done()
 							continue
 						}
-						wg.Add(1)
 					}
 				}
 			}
@@ -285,13 +284,12 @@ loop:
 					Log:      &log,
 				}
 
-				err := e.consumeReader(produceCtx, tr, promise)
-				if err != nil {
+				wg.Add(1)
+				if err := e.consumeReader(produceCtx, tr, promise); err != nil {
 					e.logger.Warn("skipping entity export for log", zap.Error(err))
+					wg.Done()
 					continue
 				}
-
-				wg.Add(1)
 			}
 		}
 	}
